@@ -57,14 +57,22 @@ async def run_seed(db):
             (cid, nome, box, atividade, tel, situacao, valor, "Mensal", "admin_solanea_001", now),
         )
 
-    # Seed pagamentos — últimos 6 meses para cessionários Regulares
+    # Seed pagamentos — últimos 5 meses fechados para cessionários Regulares
     today = date.today()
+
+    def mes_anterior(ano, mes, n):
+        """Retorna (ano, mes) subtraindo n meses."""
+        m = mes - n
+        a = ano + (m - 1) // 12
+        m = ((m - 1) % 12) + 1
+        return a, m
+
     for cid, situacao, valor in cess_ids:
         if situacao != "Regular":
             continue
-        # Add payments for last 5 months
-        for m in range(1, 6):
-            pay_date = (today.replace(day=1) - timedelta(days=m * 30)).replace(day=5)
+        for n in range(1, 6):  # 5 meses anteriores ao mês atual
+            ano, mes = mes_anterior(today.year, today.month, n)
+            pay_date = date(ano, mes, 5)
             pid = str(uuid.uuid4())
             await db.execute(
                 """INSERT OR IGNORE INTO pagamentos

@@ -50,10 +50,22 @@ async def row_to_cess(db, row) -> CessionarioOut:
     )
 
 
-def detectar_ausencias(pagamentos: list, periodicidade: str) -> list:
-    """Detecta períodos sem pagamento desde o primeiro pagamento até hoje."""
+def detectar_ausencias(pagamentos: list, periodicidade: str, criado_em: str = None) -> list:
+    """Detecta períodos sem pagamento desde o cadastro (ou primeiro pagamento) até hoje."""
     ausencias = []
+    hoje = date.today()
+
     if not pagamentos:
+        # Sem nenhum pagamento: toda a história desde o cadastro está em aberto
+        if criado_em:
+            try:
+                inicio = date.fromisoformat(criado_em[:10])
+            except Exception:
+                inicio = date(hoje.year, hoje.month, 1)
+        else:
+            inicio = date(hoje.year, hoje.month, 1)
+        # Retorna dummy para sinalizar irregularidade total
+        ausencias.append("Nenhum pagamento registrado")
         return ausencias
 
     datas = sorted([p["data"] for p in pagamentos])
@@ -218,7 +230,7 @@ async def certidao(cid: str, user: dict = Depends(get_current_user)):
     else:
         periodicidade = cess["per_ref"] or "Mensal"
 
-    ausencias = detectar_ausencias(pagamentos_list, periodicidade)
+    ausencias = detectar_ausencias(pagamentos_list, periodicidade, cess["criado_em"])
     ultimo = max((p["data"] for p in pagamentos_list), default=None)
     total_pago = sum(p["valor"] for p in pagamentos_list)
 
