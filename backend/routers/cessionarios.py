@@ -67,33 +67,39 @@ def detectar_ausencias(pagamentos: list, periodicidade: str) -> list:
             dt = date.fromisoformat(d)
             meses_pagos.add((dt.year, dt.month))
 
+        # Itera apenas até o mês anterior ao atual (mês corrente ainda não fechou)
+        mes_anterior = date(hoje.year, hoje.month, 1) - timedelta(days=1)
+        limite = date(mes_anterior.year, mes_anterior.month, 1)
+
         cur = date(primeira.year, primeira.month, 1)
-        while cur <= hoje:
+        while cur <= limite:
             if (cur.year, cur.month) not in meses_pagos:
-                ausencias.append(cur.strftime("%m/%Y"))
-            # Advance to next month
+                nomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                         "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"]
+                ausencias.append(f"{nomes[cur.month - 1]} de {cur.year}")
             if cur.month == 12:
                 cur = date(cur.year + 1, 1, 1)
             else:
                 cur = date(cur.year, cur.month + 1, 1)
 
     elif periodicidade == "Semanal":
-        # Weeks (Monday) with at least one payment
+        # Weeks (Monday) with at least one payment — só semanas já encerradas
         semanas_pagas = set()
         for d in datas:
             dt = date.fromisoformat(d)
             segunda = dt - timedelta(days=dt.weekday())
             semanas_pagas.add(segunda)
 
-        # Start from Monday of first payment week
+        semana_atual = hoje - timedelta(days=hoje.weekday())
         cur = primeira - timedelta(days=primeira.weekday())
-        while cur <= hoje:
+        while cur < semana_atual:
             if cur not in semanas_pagas:
-                ausencias.append(f"Semana {cur.strftime('%d/%m/%Y')}")
+                fim = cur + timedelta(days=6)
+                ausencias.append(f"Semana de {cur.strftime('%d/%m')} a {fim.strftime('%d/%m/%Y')}")
             cur += timedelta(weeks=1)
 
     elif periodicidade == "Quinzenal":
-        # Two-week periods
+        # Two-week periods — só períodos já encerrados
         periodos_pagos = set()
         ref = date(primeira.year, primeira.month, 1)
         for d in datas:
@@ -104,9 +110,10 @@ def detectar_ausencias(pagamentos: list, periodicidade: str) -> list:
 
         cur = ref
         periodo_idx = 0
-        while cur <= hoje:
+        while cur + timedelta(days=14) < hoje:
             if periodo_idx not in periodos_pagos:
-                ausencias.append(f"Quinzena {cur.strftime('%d/%m/%Y')}")
+                fim = cur + timedelta(days=14)
+                ausencias.append(f"Quinzena de {cur.strftime('%d/%m')} a {fim.strftime('%d/%m/%Y')}")
             cur += timedelta(days=15)
             periodo_idx += 1
 
@@ -215,6 +222,17 @@ async def certidao(cid: str, user: dict = Depends(get_current_user)):
     ultimo = max((p["data"] for p in pagamentos_list), default=None)
     total_pago = sum(p["valor"] for p in pagamentos_list)
 
+    # Situação é derivada das ausências calculadas, não do campo manual
+    situacao_calculada = "Irregular" if ausencias else "Regular"
+
+    # Sincroniza o campo no banco para refletir a realidade
+    async with get_db() as db2:
+        await db2.execute(
+            "UPDATE cessionarios SET situacao = ? WHERE id = ?",
+            (situacao_calculada, cid),
+        )
+        await db2.commit()
+
     numero = f"CERT-{cid[:8].upper()}-{datetime.utcnow().strftime('%Y%m%d')}"
 
     return CertidaoResponse(
@@ -222,7 +240,7 @@ async def certidao(cid: str, user: dict = Depends(get_current_user)):
         cessionario=cess["nome"],
         numero_box=cess["numero_box"],
         atividade=cess["atividade"],
-        situacao=cess["situacao"],
+        situacao=situacao_calculada,
         ausencias=ausencias,
         ultimo_pagamento=ultimo,
         periodicidade=periodicidade,
