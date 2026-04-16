@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container": "#eceef1",
+                    "tertiary-container": "#501300",
+                    "primary-fixed-dim": "#b3c5ff",
+                    "surface-tint": "#435b9f",
+                    "secondary": "#046d3f",
+                    "on-secondary-container": "#0e7143",
+                    "surface-variant": "#e0e3e6",
+                    "primary": "#00113a",
+                    "tertiary-fixed": "#ffdbd0",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e6e8eb",
+                    "outline-variant": "#c5c6d2",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#002366",
+                    "secondary-fixed": "#9df5bc",
+                    "secondary-container": "#9af2b9",
+                    "inverse-on-surface": "#eff1f4",
+                    "on-secondary-fixed": "#002110",
+                    "tertiary": "#2d0700",
+                    "on-surface-variant": "#444650",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e0e3e6",
+                    "on-primary-fixed-variant": "#2a4386",
+                    "on-primary-fixed": "#00174a",
+                    "error": "#ba1a1a",
+                    "on-background": "#191c1e",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#81d9a1",
+                    "surface-container-low": "#f2f4f7",
+                    "on-tertiary-fixed": "#390b00",
+                    "outline": "#757682",
+                    "on-error-container": "#93000a",
+                    "background": "#f7f9fc",
+                    "on-primary-container": "#758dd5",
+                    "on-surface": "#191c1e",
+                    "on-secondary-fixed-variant": "#00522e",
+                    "on-tertiary-fixed-variant": "#783018",
+                    "surface-bright": "#f7f9fc",
+                    "surface-dim": "#d8dadd",
+                    "on-tertiary-container": "#d37758",
+                    "tertiary-fixed-dim": "#ffb59e",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#b3c5ff",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#f7f9fc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-header {
+            background: rgba(247, 249, 252, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface">
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 p-4 border-r border-slate-200/20 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-black text-blue-900 dark:text-blue-100 text-xl tracking-tighter">Civic Ledger</h1>
+<p class="text-on-surface-variant font-label text-[10px] uppercase tracking-wider">Market Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-blue-900/30 text-blue-900 dark:text-blue-200 font-bold rounded-lg shadow-sm transition-transform duration-200 ease-in-out cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-inter label-md uppercase tracking-wider">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-200 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-inter label-md uppercase tracking-wider">Cessionários</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-200 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-inter label-md uppercase tracking-wider">Boxes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-200 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-inter label-md uppercase tracking-wider">Financeiro</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-200 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-inter label-md uppercase tracking-wider">Certidões</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-200 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-inter label-md uppercase tracking-wider">Relatórios</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-200/20 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-blue-800 transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-inter label-md uppercase tracking-wider">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:text-error transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-inter label-md uppercase tracking-wider">Logout</span>
+</a>
+</div>
+</aside>
+<main class="md:ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-6 py-3 sticky top-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl z-40 shadow-sm shadow-blue-900/5 tonal-transition surface-container-low">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative max-w-md w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary-container" placeholder="Search records, boxes, or vendors..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-blue-900 dark:text-blue-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors rounded-full relative cursor-pointer active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-blue-900 dark:text-blue-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors rounded-full cursor-pointer active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-primary-container shadow-sm">
+<img alt="Administrator Profile" class="h-full w-full object-cover" data-alt="Close-up portrait of a professional male administrator in a modern office setting with warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6_UVnkqxJHYTYm04CF5EfzDfBuBeBPVOYo1ULknklCRCMyUZAHgxIollQny3Wz39pmLbSW2dUMBx1N5pzcJ4nidHPvkT9xxFGQBSP15J-CM0Rz15qIgZqbunBTNa2VzYQ4WF4m2Z0-88_lFSvJcqtloKnFSsqD98HOtnGBvmbsnmijps5wPafPW6LEC_pvN1yasJ5C34ygWwq8qX2zKejC5DRTEQUy3SJpXuPFe9TdNKBvOE0MR_iW0nM-6IqPBKZ6aa6-hrzCMU"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight text-primary">Overview</h2>
+<p class="text-on-surface-variant body-md">Monitor the administrative pulse of The Civic Ledger.</p>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-2.5 rounded-xl font-bold shadow-md hover:opacity-90 active:scale-95 transition-all">
+                    Generate Report
+                </button>
+</div>
+<!-- Bento Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Total Occupancy -->
+<div class="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-primary-fixed flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-on-surface-variant label-md uppercase tracking-wider font-semibold">Total Occupancy</span>
+<h3 class="text-5xl font-black text-primary mt-2">92%</h3>
+</div>
+<div class="h-16 w-16 rounded-full border-4 border-secondary-container border-t-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">pie_chart</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2 text-secondary font-bold text-sm">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+2.4% from last month</span>
+</div>
+</div>
+<!-- Monthly Revenue -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-secondary flex flex-col justify-between">
+<div>
+<span class="text-on-surface-variant label-md uppercase tracking-wider font-semibold">Monthly Revenue</span>
+<h3 class="text-3xl font-black text-primary mt-2">R$ 142.8k</h3>
+</div>
+<div class="mt-4 h-12 w-full bg-secondary-container/20 rounded flex items-end gap-1 px-1 py-1">
+<div class="w-1/6 h-2/5 bg-secondary-container rounded-t-sm"></div>
+<div class="w-1/6 h-3/5 bg-secondary-container rounded-t-sm"></div>
+<div class="w-1/6 h-4/5 bg-secondary-container rounded-t-sm"></div>
+<div class="w-1/6 h-3/5 bg-secondary-container rounded-t-sm"></div>
+<div class="w-1/6 h-5/5 bg-secondary-container rounded-t-sm"></div>
+<div class="w-1/6 h-4/5 bg-secondary rounded-t-sm"></div>
+</div>
+</div>
+<!-- Overdue Payments -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-error flex flex-col justify-between">
+<div>
+<span class="text-on-surface-variant label-md uppercase tracking-wider font-semibold">Overdue Payments</span>
+<h3 class="text-3xl font-black text-error mt-2">15</h3>
+</div>
+<div class="mt-4 flex -space-x-2">
+<div class="h-8 w-8 rounded-full bg-error-container border-2 border-white flex items-center justify-center text-on-error-container text-xs font-bold">JD</div>
+<div class="h-8 w-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-slate-600 text-xs font-bold">MS</div>
+<div class="h-8 w-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-slate-400 text-xs font-bold">+13</div>
+</div>
+</div>
+</div>
+<!-- Main Dashboard Layout (Asymmetric) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Revenue Chart Section -->
+<div class="lg:col-span-2 space-y-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex justify-between items-center mb-10">
+<h4 class="text-xl font-bold text-primary">Fiscal Performance</h4>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-surface-container-low text-xs font-bold rounded-full cursor-pointer">6 Months</span>
+<span class="px-3 py-1 bg-primary text-on-primary text-xs font-bold rounded-full cursor-pointer">1 Year</span>
+</div>
+</div>
+<div class="h-64 flex items-end gap-6 relative px-4">
+<!-- Chart Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between border-b border-slate-100 pointer-events-none">
+<div class="border-b border-slate-100/50 w-full h-0"></div>
+<div class="border-b border-slate-100/50 w-full h-0"></div>
+<div class="border-b border-slate-100/50 w-full h-0"></div>
+<div class="border-b border-slate-100/50 w-full h-0"></div>
+</div>
+<!-- Bars -->
+<div class="flex-1 h-3/4 bg-primary/10 rounded-t-lg relative group transition-all hover:bg-primary/20">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">110k</div>
+<div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-primary to-primary-container rounded-t-lg"></div>
+</div>
+<div class="flex-1 h-2/3 bg-primary/10 rounded-t-lg relative group transition-all hover:bg-primary/20">
+<div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-primary to-primary-container rounded-t-lg opacity-80"></div>
+</div>
+<div class="flex-1 h-4/5 bg-primary/10 rounded-t-lg relative group transition-all hover:bg-primary/20">
+<div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-primary to-primary-container rounded-t-lg"></div>
+</div>
+<div class="flex-1 h-1/2 bg-primary/10 rounded-t-lg relative group transition-all hover:bg-primary/20">
+<div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-primary to-primary-container rounded-t-lg opacity-60"></div>
+</div>
+<div class="flex-1 h-full bg-primary/10 rounded-t-lg relative group transition-all hover:bg-primary/20">
+<div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-primary to-primary-container rounded-t-lg"></div>
+</div>
+<div class="flex-1 h-5/6 bg-primary/10 rounded-t-lg relative group transition-all hover:bg-primary/20">
+<div class="absolute bottom-0 w-full h-full bg-gradient-to-t from-primary to-primary-container rounded-t-lg"></div>
+</div>
+</div>
+<div class="flex justify-between mt-4 px-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+<span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+</div>
+</div>
+<!-- Recent Activities Table -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-50 flex justify-between items-center">
+<h4 class="text-lg font-bold text-primary">Recent Operations</h4>
+<button class="text-primary text-sm font-bold hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-6 py-3 label-sm uppercase tracking-wider text-on-surface-variant">Entity / Box</th>
+<th class="px-6 py-3 label-sm uppercase tracking-wider text-on-surface-variant">Action</th>
+<th class="px-6 py-3 label-sm uppercase tracking-wider text-on-surface-variant">Status</th>
+<th class="px-6 py-3 label-sm uppercase tracking-wider text-on-surface-variant">Timestamp</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-100 flex items-center justify-center text-primary font-bold text-xs">B-42</div>
+<span class="font-bold text-sm">Hortifruti do Vale</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Renewal submitted</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase rounded-full">Approved</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs font-medium">2h ago</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-100 flex items-center justify-center text-primary font-bold text-xs">A-08</div>
+<span class="font-bold text-sm">Peixaria Central</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Monthly quota paid</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase rounded-full">Paid</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs font-medium">5h ago</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded bg-slate-100 flex items-center justify-center text-primary font-bold text-xs">C-15</div>
+<span class="font-bold text-sm">Laticínios Minas</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Electrical inspection</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] font-black uppercase rounded-full">Pending</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-xs font-medium">1d ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column: Alerts & Compliance -->
+<div class="space-y-6">
+<!-- Critical Alerts Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<h4 class="text-lg font-bold text-primary">Critical Alerts</h4>
+</div>
+<div class="space-y-4">
+<div class="p-4 bg-error-container/30 border-l-4 border-error rounded-r-lg">
+<p class="text-sm font-bold text-on-error-container">Box B-12: Fire Hazard</p>
+<p class="text-xs text-on-error-container/80 mt-1">Defective wiring reported. Immediate inspection required before next business day.</p>
+</div>
+<div class="p-4 bg-tertiary-fixed/30 border-l-4 border-on-tertiary-fixed-variant rounded-r-lg">
+<p class="text-sm font-bold text-on-tertiary-fixed-variant">Payment Deadline</p>
+<p class="text-xs text-on-tertiary-fixed-variant/80 mt-1">15 Cessionários have overdue payments exceeding 30 days. Action recommended.</p>
+</div>
+</div>
+</div>
+<!-- Compliance Stats Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm overflow-hidden relative">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-primary/10 text-6xl">verified</span>
+</div>
+<h4 class="text-lg font-bold text-primary mb-4">Compliance</h4>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-bold text-on-surface-variant">Expiring Certificates</span>
+<span class="text-lg font-black text-error">8</span>
+</div>
+<div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full" style="width: 25%"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-1">Requires renewal within 15 days</p>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-bold text-on-surface-variant">Sanitary Permits</span>
+<span class="text-lg font-black text-secondary">98%</span>
+</div>
+<div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 98%"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-outline-variant text-primary text-xs font-black uppercase tracking-widest rounded-lg hover:bg-slate-50 transition-colors">
+                            Audit All Boxes
+                        </button>
+</div>
+<!-- Quick View Mini-Map (Decorative) -->
+<div class="rounded-xl overflow-hidden shadow-sm h-48 relative group cursor-pointer">
+<img alt="Market Floor Plan" class="w-full h-full object-cover" data-alt="High angle architectural view of a structured urban marketplace layout with geometric vendor stalls and clear walking paths" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsi5sY6nXpTcltZ90n2CIodXj5555hnTK1JcU0TYguyowo9_0GJRtG84UJOrJ_NtwECADiKZ1xc0cs26UWrYRaQRu5-2S_ll6oMUnzIAmwYLlLEiSbQ3smtAO_qm_yoYXFDPeo6FPRoskPkWwxLrjtXzYYk5zEiT41VXRFiWR1A0zAKOLQrvGF2EYqWDZ8eEKGDJjxI0uJBVwTdh4MH2Nhhbx8ZJYUaCBmigUnFtlWu1gz0nb3WtYgQxQBMIxBu_1dlhDFmy4hT6w"/>
+<div class="absolute inset-0 bg-primary/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="bg-white text-primary px-4 py-2 rounded-lg font-bold text-sm shadow-xl">Interactive Map</span>
+</div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-[10px] font-black uppercase tracking-widest text-primary">Floor Plan A</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom NavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-50 border-t border-slate-200/20 px-6 py-3 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 text-blue-700" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Início</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold">Cessionários</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="text-[10px] font-bold">Boxes</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-[10px] font-bold">Contas</span>
+</a>
+</nav>
+</body></html>

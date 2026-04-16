@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container": "#eceef1",
+                    "tertiary-container": "#501300",
+                    "primary-fixed-dim": "#b3c5ff",
+                    "surface-tint": "#435b9f",
+                    "secondary": "#046d3f",
+                    "on-secondary-container": "#0e7143",
+                    "surface-variant": "#e0e3e6",
+                    "primary": "#00113a",
+                    "tertiary-fixed": "#ffdbd0",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e6e8eb",
+                    "outline-variant": "#c5c6d2",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#002366",
+                    "secondary-fixed": "#9df5bc",
+                    "secondary-container": "#9af2b9",
+                    "inverse-on-surface": "#eff1f4",
+                    "on-secondary-fixed": "#002110",
+                    "tertiary": "#2d0700",
+                    "on-surface-variant": "#444650",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e0e3e6",
+                    "on-primary-fixed-variant": "#2a4386",
+                    "on-primary-fixed": "#00174a",
+                    "error": "#ba1a1a",
+                    "on-background": "#191c1e",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#81d9a1",
+                    "surface-container-low": "#f2f4f7",
+                    "on-tertiary-fixed": "#390b00",
+                    "outline": "#757682",
+                    "on-error-container": "#93000a",
+                    "background": "#f7f9fc",
+                    "on-primary-container": "#758dd5",
+                    "on-surface": "#191c1e",
+                    "on-secondary-fixed-variant": "#00522e",
+                    "on-tertiary-fixed-variant": "#783018",
+                    "surface-bright": "#f7f9fc",
+                    "surface-dim": "#d8dadd",
+                    "on-tertiary-container": "#d37758",
+                    "tertiary-fixed-dim": "#ffb59e",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#b3c5ff",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#f7f9fc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-fixed">
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-950 flex flex-col p-4 border-r border-slate-200/20 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-black text-blue-900 dark:text-blue-100 text-xl tracking-tight">Civic Ledger</h1>
+<p class="text-[10px] font-inter label-md uppercase tracking-wider text-slate-500">Market Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-white dark:bg-blue-900/30 text-blue-900 dark:text-blue-200 font-bold rounded-lg shadow-sm font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                Cessionários
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">storefront</span>
+                Boxes
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                Financeiro
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+                Certidões
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+                Relatórios
+            </a>
+</nav>
+<div class="mt-auto border-t border-slate-200/20 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-900 transition-all font-inter label-md uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<main class="ml-64 min-h-screen">
+<header class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center w-full px-8 py-4 sticky top-0 z-40 tonal-transition shadow-sm shadow-blue-900/5">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 transition-all" placeholder="Search licensees by name or box..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer active:scale-95 text-slate-500">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer active:scale-95 text-slate-500">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-3 pl-6 border-l border-slate-200/50">
+<div class="text-right">
+<p class="text-xs font-bold text-blue-900 dark:text-blue-100">Administrator</p>
+<p class="text-[10px] text-slate-500">Super User</p>
+</div>
+<img alt="Administrator Profile" class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md" data-alt="professional portrait of a middle-aged male administrator in a corporate setting with soft natural window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgoxY4HciPikr99wqHin8zf8doamfIEpFs8qcyVpCcnLg3dRpmT6gUCPtPWzT2em_zh9TYO0B1V5FvuSlRohZS57rQH2RA1Bi2TWKfsq_2vL6iJFXayGJMlqleA2jPl02lwjSl3NSNA2Sqs1w2uHe_AxP9PKycUJWLRJp07CcJeerp3GG-5robAcvjGhuUND90noSfMXgmukQkmZ73Iceja4zW4-LfZVjtRSdvq_VdVllmku2bUJkk5m1J7JdKrSlbMIxvZH2fpBU"/>
+</div>
+</div>
+</header>
+<section class="p-8 space-y-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="text-3xl font-black text-primary tracking-tight">Cessionários</h2>
+<p class="text-on-surface-variant mt-1">Manage licenses, track payments, and monitor market occupancy.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface font-semibold hover:bg-surface-container-highest transition-all active:scale-95">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                        Filters
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-semibold shadow-lg shadow-primary/20 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-lg">person_add</span>
+                        New Licensee
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-primary-fixed">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Total Licensees</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-4xl font-black text-primary">124</h3>
+<span class="text-secondary text-xs font-bold flex items-center gap-1">+4.2% <span class="material-symbols-outlined text-sm">trending_up</span></span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-secondary">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Active Units</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-4xl font-black text-primary">112</h3>
+<span class="text-on-surface-variant text-[10px] font-medium">90% Occupancy</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-error">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Late Payments</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-4xl font-black text-error">8</h3>
+<span class="bg-error-container text-on-error-container text-[10px] px-2 py-0.5 rounded-full font-bold">Action Needed</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-t-2 border-tertiary-fixed-dim">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Expiring Soon</p>
+<div class="flex items-end justify-between mt-2">
+<h3 class="text-4xl font-black text-primary">15</h3>
+<span class="text-on-tertiary-fixed-variant text-[10px] font-medium">Next 30 days</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 flex items-center justify-between border-b border-surface-container-low bg-white">
+<div class="flex gap-4">
+<div class="px-4 py-2 bg-surface-container-low rounded-lg flex items-center gap-3">
+<span class="text-xs font-bold text-on-surface-variant">Category:</span>
+<select class="bg-transparent border-none p-0 text-sm font-semibold text-primary focus:ring-0">
+<option>All Categories</option>
+<option>Food</option>
+<option>Craft</option>
+<option>Service</option>
+</select>
+</div>
+<div class="px-4 py-2 bg-surface-container-low rounded-lg flex items-center gap-3">
+<span class="text-xs font-bold text-on-surface-variant">Status:</span>
+<select class="bg-transparent border-none p-0 text-sm font-semibold text-primary focus:ring-0">
+<option>All Status</option>
+<option>Active</option>
+<option>Suspended</option>
+<option>Late Payment</option>
+</select>
+</div>
+</div>
+<p class="text-xs text-slate-400 italic">Showing 1-10 of 124 licensees</p>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 label-sm uppercase tracking-wider text-on-surface-variant font-bold">Name &amp; Contract</th>
+<th class="px-6 py-4 label-sm uppercase tracking-wider text-on-surface-variant font-bold">Box Number</th>
+<th class="px-6 py-4 label-sm uppercase tracking-wider text-on-surface-variant font-bold">Category</th>
+<th class="px-6 py-4 label-sm uppercase tracking-wider text-on-surface-variant font-bold">Status</th>
+<th class="px-6 py-4 label-sm uppercase tracking-wider text-on-surface-variant font-bold">Expiration Date</th>
+<th class="px-6 py-4 label-sm uppercase tracking-wider text-on-surface-variant font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">JS</div>
+<div>
+<p class="font-bold text-primary">Juliana Silva</p>
+<p class="text-xs text-slate-400">#CT-2023-0045</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="font-mono font-bold text-slate-700">A-12</span>
+</td>
+<td class="px-6 py-5">
+<span class="text-sm font-medium text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">Food</span>
+</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wider">Active</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-semibold">15 Oct 2025</p>
+<p class="text-[10px] text-slate-400">382 days remaining</p>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="View Details">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="Edit">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-bold">RO</div>
+<div>
+<p class="font-bold text-primary">Ricardo Oliveira</p>
+<p class="text-xs text-slate-400">#CT-2023-0091</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="font-mono font-bold text-slate-700">B-05</span>
+</td>
+<td class="px-6 py-5">
+<span class="text-sm font-medium text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">Craft</span>
+</td>
+<td class="px-6 py-5">
+<span class="bg-error-container text-on-error-container text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wider">Late Payment</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-semibold text-error">02 Nov 2024</p>
+<p class="text-[10px] text-error font-medium">Expires very soon</p>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="View Details">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="Edit">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold">MC</div>
+<div>
+<p class="font-bold text-primary">Maria Costa</p>
+<p class="text-xs text-slate-400">#CT-2022-0152</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="font-mono font-bold text-slate-700">C-22</span>
+</td>
+<td class="px-6 py-5">
+<span class="text-sm font-medium text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">Service</span>
+</td>
+<td class="px-6 py-5">
+<span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wider">Suspended</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-semibold">10 Jan 2025</p>
+<p class="text-[10px] text-slate-400">Suspended since Sep 24</p>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="View Details">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="Edit">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">FP</div>
+<div>
+<p class="font-bold text-primary">Fernando Pereira</p>
+<p class="text-xs text-slate-400">#CT-2024-0012</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="font-mono font-bold text-slate-700">A-01</span>
+</td>
+<td class="px-6 py-5">
+<span class="text-sm font-medium text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full">Food</span>
+</td>
+<td class="px-6 py-5">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wider">Active</span>
+</td>
+<td class="px-6 py-5">
+<p class="text-sm font-semibold">22 Dec 2026</p>
+<p class="text-[10px] text-slate-400">New contract</p>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="View Details">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="p-2 text-primary hover:bg-white rounded-lg shadow-sm transition-all" title="Edit">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 flex items-center justify-between bg-surface-container-low/30 border-t border-surface-container-low">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm text-primary font-bold active:scale-90 transition-transform">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-on-surface-variant transition-colors active:scale-90 transition-transform">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-on-surface-variant transition-colors active:scale-90 transition-transform">3</button>
+<span class="mx-1 text-slate-400">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-on-surface-variant transition-colors active:scale-90 transition-transform">13</button>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-4 py-2 text-sm font-bold text-primary flex items-center gap-2 hover:bg-white rounded-lg transition-all active:scale-95">
+                            Previous
+                        </button>
+<button class="px-4 py-2 text-sm font-bold text-primary flex items-center gap-2 hover:bg-white rounded-lg transition-all active:scale-95">
+                            Next
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="bg-gradient-to-br from-primary to-primary-container p-8 rounded-3xl text-white shadow-xl shadow-primary/20 relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="text-2xl font-bold">Occupancy Map</h4>
+<p class="text-on-primary-container mt-2 opacity-90">Visual overview of market distribution and available spaces.</p>
+<button class="mt-8 px-8 py-3 bg-white text-primary font-black rounded-full hover:bg-primary-fixed transition-colors active:scale-95">Open Interactive Map</button>
+</div>
+<span class="material-symbols-outlined absolute -right-10 -bottom-10 text-[200px] opacity-10 rotate-12">map</span>
+</div>
+<div class="bg-secondary p-8 rounded-3xl text-white shadow-xl shadow-secondary/20 relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="text-2xl font-bold">Financial Health</h4>
+<p class="text-secondary-fixed mt-2 opacity-90">Current collection rate is 94.2%. Outstanding debts totaling $12.4k.</p>
+<button class="mt-8 px-8 py-3 bg-white text-secondary font-black rounded-full hover:bg-secondary-fixed transition-colors active:scale-95">View Fiscal Report</button>
+</div>
+<span class="material-symbols-outlined absolute -right-10 -bottom-10 text-[200px] opacity-10 rotate-12">payments</span>
+</div>
+</div>
+</section>
+<footer class="p-8 mt-12 border-t border-slate-200/20 text-center">
+<p class="text-slate-400 text-xs font-medium uppercase tracking-[0.2em]">© 2024 The Civic Ledger • Institutional Fluidity Framework</p>
+</footer>
+</main>
+</body></html>
