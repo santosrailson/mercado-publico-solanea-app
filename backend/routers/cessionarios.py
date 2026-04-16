@@ -70,7 +70,6 @@ def detectar_ausencias(pagamentos: list, periodicidade: str, criado_em: str = No
 
     datas = sorted([p["data"] for p in pagamentos])
     primeira = date.fromisoformat(datas[0])
-    hoje = date.today()
 
     if periodicidade == "Mensal":
         # Meses com pelo menos um pagamento
@@ -212,46 +211,49 @@ async def certidao(cid: str, user: dict = Depends(get_current_user)):
         if not user.get("is_admin") and cess["criado_por"] != user["sub"]:
             raise HTTPException(status_code=403, detail="Sem permissão")
 
+        # Converte para dict imediatamente enquanto a conexão está aberta
+        cess = dict(cess)
+
         async with db.execute(
-            "SELECT * FROM pagamentos WHERE cessionario_id = ? ORDER BY data", (cid,)
+            "SELECT data, valor, periodicidade FROM pagamentos WHERE cessionario_id = ? ORDER BY data",
+            (cid,)
         ) as c:
             pags = await c.fetchall()
 
+        pagamentos_list = [dict(p) for p in pags]
+
         async with db.execute("SELECT nome FROM users WHERE id = ?", (user["sub"],)) as c:
             u = await c.fetchone()
-        emitido_por = u["nome"] if u else user.get("nome", "Sistema")
+        emitido_por = u["nome"] if u else "Sistema"
 
-    pagamentos_list = [dict(p) for p in pags]
+        # Periodicidade predominante
+        if pagamentos_list:
+            counter = Counter(p["periodicidade"] for p in pagamentos_list)
+            periodicidade = counter.most_common(1)[0][0]
+        else:
+            periodicidade = cess.get("per_ref") or "Mensal"
 
-    # Determine periodicidade predominante
-    if pagamentos_list:
-        counter = Counter(p["periodicidade"] for p in pagamentos_list)
-        periodicidade = counter.most_common(1)[0][0]
-    else:
-        periodicidade = cess["per_ref"] or "Mensal"
+        ausencias = detectar_ausencias(pagamentos_list, periodicidade, cess.get("criado_em"))
+        ultimo = max((p["data"] for p in pagamentos_list), default=None)
+        total_pago = sum(p["valor"] for p in pagamentos_list)
 
-    ausencias = detectar_ausencias(pagamentos_list, periodicidade, cess["criado_em"])
-    ultimo = max((p["data"] for p in pagamentos_list), default=None)
-    total_pago = sum(p["valor"] for p in pagamentos_list)
+        # Situação derivada das ausências — não do campo manual
+        situacao_calculada = "Irregular" if ausencias else "Regular"
 
-    # Situação é derivada das ausências calculadas, não do campo manual
-    situacao_calculada = "Irregular" if ausencias else "Regular"
-
-    # Sincroniza o campo no banco para refletir a realidade
-    async with get_db() as db2:
-        await db2.execute(
+        # Sincroniza o campo no banco
+        await db.execute(
             "UPDATE cessionarios SET situacao = ? WHERE id = ?",
             (situacao_calculada, cid),
         )
-        await db2.commit()
+        await db.commit()
 
     numero = f"CERT-{cid[:8].upper()}-{datetime.utcnow().strftime('%Y%m%d')}"
 
     return CertidaoResponse(
         numero=numero,
         cessionario=cess["nome"],
-        numero_box=cess["numero_box"],
-        atividade=cess["atividade"],
+        numero_box=cess.get("numero_box"),
+        atividade=cess.get("atividade"),
         situacao=situacao_calculada,
         ausencias=ausencias,
         ultimo_pagamento=ultimo,
