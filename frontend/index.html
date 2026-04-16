@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mercado Público – Solânea PB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     TOAST CONTAINER
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     S-LOGIN
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="s-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🏛️</div>
+      <h1>Prefeitura Municipal de Solânea – PB</h1>
+      <p>Mercado Público Municipal — Sistema de Gestão</p>
+    </div>
+    <p class="login-title">Entrar no Sistema</p>
+    <div id="login-error"></div>
+    <div class="form-group">
+      <label for="l-email">E-mail</label>
+      <input id="l-email" type="email" placeholder="admin@solanea.pb.gov.br" autocomplete="email" />
+    </div>
+    <div class="form-group">
+      <label for="l-senha">Senha</label>
+      <input id="l-senha" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button id="btn-login" class="btn btn-primary btn-full btn-lg" style="margin-top:.5rem">
+      <span>🔑</span> Entrar
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     S-PENDING
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="s-pending" class="hidden">
+  <div class="pending-card">
+    <div class="pending-icon">⏳</div>
+    <h2>Aguardando Aprovação</h2>
+    <p>Sua conta está pendente de aprovação por um administrador. Entre em contato com a administração do Mercado Público.</p>
+    <button class="btn btn-ghost btn-full mt-2" onclick="logout()">Sair</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     S-APP
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="s-app" class="hidden">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-mark">🏛️</div>
+        <div class="logo-text">
+          <h2>Mercado Público</h2>
+          <span>Solânea – PB</span>
+        </div>
+      </div>
+    </div>
+    <ul class="sidebar-nav" id="sidebar-nav">
+      <li class="nav-item active" data-tab="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </li>
+      <li class="nav-item" data-tab="cessionarios">
+        <span class="nav-icon">🏪</span> Cessionários
+      </li>
+      <li class="nav-item" data-tab="pagamentos">
+        <span class="nav-icon">💳</span> Pagamentos
+      </li>
+      <li class="nav-item" data-tab="relatorios">
+        <span class="nav-icon">📄</span> Relatórios
+      </li>
+      <li class="nav-item hidden" id="nav-usuarios" data-tab="usuarios">
+        <span class="nav-icon">👥</span> Usuários
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Usuário</div>
+          <div class="user-role" id="user-role">Operador</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="logout()" style="color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)">
+        <span>🚪</span> Sair
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <header class="main-header">
+      <button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+      <div id="header-actions"></div>
+    </header>
+    <main class="main-body">
+
+      <!-- DASHBOARD -->
+      <div id="t-dashboard">
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-card"><div class="kpi-icon blue">🏪</div><div class="kpi-body"><div class="kpi-value" id="k-total">–</div><div class="kpi-label">Total Cessionários</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon green">✅</div><div class="kpi-body"><div class="kpi-value" id="k-reg">–</div><div class="kpi-label">Regulares</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon red">⚠️</div><div class="kpi-body"><div class="kpi-value" id="k-irr">–</div><div class="kpi-label">Irregulares</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon cyan">💰</div><div class="kpi-body"><div class="kpi-value" id="k-arr">–</div><div class="kpi-label">Total Arrecadado</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon orange">📅</div><div class="kpi-body"><div class="kpi-value" id="k-mes">–</div><div class="kpi-label">Arrecadação do Mês</div></div></div>
+          <div class="kpi-card"><div class="kpi-icon blue">🧾</div><div class="kpi-body"><div class="kpi-value" id="k-npag">–</div><div class="kpi-label">Total Pagamentos</div></div></div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-wrap">
+            <div class="chart-title">Situação dos Cessionários</div>
+            <div class="donut-container" id="donut-wrap"></div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-title">Arrecadação – Últimos 6 Meses</div>
+            <div class="bar-chart-area" id="bar-wrap"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="card">
+            <div class="card-header"><h3>🏆 Top Pagadores</h3></div>
+            <div class="top-list" id="top-pagadores"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>🕒 Atividade Recente</h3></div>
+            <div class="activity-list" id="activity-list"></div>
+          </div>
+        </div>
+      </div><!-- /t-dashboard -->
+
+      <!-- CESSIONÁRIOS -->
+      <div id="t-cessionarios" class="hidden">
+        <div class="section-header">
+          <h2>Cessionários</h2>
+          <button class="btn btn-primary" onclick="openCessModal()"><span>➕</span> Novo</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="filters">
+              <input id="f-cess-nome" placeholder="🔍 Buscar por nome..." oninput="filterCessionarios()" />
+              <select id="f-cess-sit" onchange="filterCessionarios()">
+                <option value="">Todas as situações</option>
+                <option value="Regular">Regular</option>
+                <option value="Irregular">Irregular</option>
+              </select>
+              <select id="f-cess-per" onchange="filterCessionarios()">
+                <option value="">Todas periodicidades</option>
+                <option value="Mensal">Mensal</option>
+                <option value="Semanal">Semanal</option>
+                <option value="Quinzenal">Quinzenal</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Box</th>
+                  <th>Nome</th>
+                  <th>Atividade</th>
+                  <th>Telefone</th>
+                  <th>Situação</th>
+                  <th>Valor Ref.</th>
+                  <th>Total Pago</th>
+                  <th>Último Pag.</th>
+                  <th id="th-cadastrador" class="hidden">Cadastrador</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tb-cessionarios"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pag-cessionarios"></div>
+        </div>
+      </div><!-- /t-cessionarios -->
+
+      <!-- PAGAMENTOS -->
+      <div id="t-pagamentos" class="hidden">
+        <div class="section-header">
+          <h2>Pagamentos</h2>
+          <button class="btn btn-primary" onclick="openPagModal()"><span>➕</span> Novo</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="filters">
+              <input id="f-pag-nome" placeholder="🔍 Buscar cessionário..." oninput="filterPagamentos()" />
+              <select id="f-pag-per" onchange="filterPagamentos()">
+                <option value="">Todas periodicidades</option>
+                <option value="Mensal">Mensal</option>
+                <option value="Semanal">Semanal</option>
+                <option value="Quinzenal">Quinzenal</option>
+              </select>
+              <input id="f-pag-di" type="date" onchange="filterPagamentos()" title="Data início" />
+              <input id="f-pag-df" type="date" onchange="filterPagamentos()" title="Data fim" />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Cessionário</th>
+                  <th>Box</th>
+                  <th>Periodicidade</th>
+                  <th>Valor</th>
+                  <th>Cadastrador</th>
+                  <th>Observação</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tb-pagamentos"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pag-pagamentos"></div>
+        </div>
+      </div><!-- /t-pagamentos -->
+
+      <!-- RELATÓRIOS -->
+      <div id="t-relatorios" class="hidden">
+        <div class="section-header"><h2>Central de Relatórios</h2></div>
+        <div class="report-grid">
+          <!-- Cessionários -->
+          <div class="report-card">
+            <div class="report-card-header">
+              <div class="report-icon">🏪</div>
+              <h4>Cessionários</h4>
+            </div>
+            <p>Lista completa de cessionários com situação, valores de referência e totais pagos.</p>
+            <div style="margin-bottom:.5rem">
+              <select id="r-cess-sit" style="padding:.4rem .7rem;border:1.5px solid var(--border);border-radius:7px;font-size:.83rem">
+                <option value="todos">Todos</option>
+                <option value="Regular">Regular</option>
+                <option value="Irregular">Irregular</option>
+              </select>
+            </div>
+            <div class="report-actions">
+              <button class="btn btn-primary btn-sm" onclick="downloadRelatorio('cessionarios','pdf','situacao='+document.getElementById('r-cess-sit').value)">📄 PDF</button>
+              <button class="btn btn-success btn-sm" onclick="downloadRelatorio('cessionarios','xlsx','')">📊 Excel</button>
+            </div>
+          </div>
+
+          <!-- Pagamentos -->
+          <div class="report-card">
+            <div class="report-card-header">
+              <div class="report-icon">💳</div>
+              <h4>Pagamentos</h4>
+            </div>
+            <p>Extrato de pagamentos com filtro por período, cessionário e periodicidade.</p>
+            <div style="display:flex;gap:.4rem;margin-bottom:.5rem;flex-wrap:wrap">
+              <input id="r-pag-di" type="date" style="padding:.4rem .7rem;border:1.5px solid var(--border);border-radius:7px;font-size:.83rem" />
+              <input id="r-pag-df" type="date" style="padding:.4rem .7rem;border:1.5px solid var(--border);border-radius:7px;font-size:.83rem" />
+            </div>
+            <div class="report-actions">
+              <button class="btn btn-primary btn-sm" onclick="downloadRelatorio('pagamentos','pdf','data_ini='+document.getElementById('r-pag-di').value+'&data_fim='+document.getElementById('r-pag-df').value)">📄 PDF</button>
+              <button class="btn btn-success btn-sm" onclick="downloadRelatorio('pagamentos','xlsx','')">📊 Excel</button>
+            </div>
+          </div>
+
+          <!-- Geral -->
+          <div class="report-card">
+            <div class="report-card-header">
+              <div class="report-icon">📋</div>
+              <h4>Relatório Geral</h4>
+            </div>
+            <p>Relatório consolidado com KPIs, cessionários e pagamentos em um único documento.</p>
+            <div class="report-actions">
+              <button class="btn btn-primary btn-sm" onclick="downloadRelatorio('geral','pdf','')">📄 PDF</button>
+              <button class="btn btn-success btn-sm" onclick="downloadRelatorio('geral','xlsx','')">📊 Excel (Múlt. Abas)</button>
+            </div>
+          </div>
+
+          <!-- Cobrança -->
+          <div class="report-card">
+            <div class="report-card-header">
+              <div class="report-icon">💰</div>
+              <h4>Lista de Cobrança</h4>
+            </div>
+            <p>Lista para cobrança com valor de referência, último pagamento e situação de cada cessionário.</p>
+            <div class="report-actions">
+              <button class="btn btn-primary btn-sm" onclick="downloadRelatorio('cobranca','pdf','')">📄 PDF</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /t-relatorios -->
+
+      <!-- USUÁRIOS -->
+      <div id="t-usuarios" class="hidden">
+        <div class="section-header">
+          <h2>Usuários</h2>
+          <button class="btn btn-primary" onclick="openUserModal()"><span>➕</span> Novo</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Perfil</th>
+                  <th>Status</th>
+                  <th>Criado em</th>
+                  <th class="col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tb-usuarios"></tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /t-usuarios -->
+
+    </main>
+  </div>
+</section><!-- /s-app -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Modal: Cessionário -->
+<div class="modal-backdrop" id="m-cess">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="m-cess-title">Novo Cessionário</h3>
+      <button class="modal-close" onclick="closeModal('m-cess')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mc-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome *</label>
+          <input id="mc-nome" placeholder="Nome completo ou razão social" />
+        </div>
+        <div class="form-group">
+          <label>Número do Box</label>
+          <input id="mc-box" placeholder="Ex: A-01" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Atividade</label>
+          <input id="mc-ativ" placeholder="Ex: Açougue, Padaria..." />
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input id="mc-tel" placeholder="(83) 99999-9999" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Situação</label>
+          <select id="mc-sit">
+            <option value="Regular">Regular</option>
+            <option value="Irregular">Irregular</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Periodicidade</label>
+          <select id="mc-per">
+            <option value="Mensal">Mensal</option>
+            <option value="Semanal">Semanal</option>
+            <option value="Quinzenal">Quinzenal</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Valor de Referência (R$)</label>
+        <input id="mc-val" type="number" step="0.01" min="0" placeholder="0,00" />
+      </div>
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="mc-obs" placeholder="Informações adicionais..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('m-cess')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-cess" onclick="saveCessionario()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Pagamento -->
+<div class="modal-backdrop" id="m-pag">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="m-pag-title">Novo Pagamento</h3>
+      <button class="modal-close" onclick="closeModal('m-pag')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mp-id" />
+      <div class="form-group">
+        <label>Cessionário *</label>
+        <select id="mp-cess" onchange="onCessSelectChange()">
+          <option value="">Selecione...</option>
+        </select>
+      </div>
+      <div class="value-hint" id="mp-hint">
+        💡 Valor sugerido: <strong id="mp-hint-val">R$ 0,00</strong>
+        &nbsp;<a onclick="useHintValue()">Usar</a>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data *</label>
+          <input id="mp-data" type="date" />
+        </div>
+        <div class="form-group">
+          <label>Periodicidade</label>
+          <select id="mp-per">
+            <option value="Mensal">Mensal</option>
+            <option value="Semanal">Semanal</option>
+            <option value="Quinzenal">Quinzenal</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Valor (R$) *</label>
+        <input id="mp-val" type="number" step="0.01" min="0.01" placeholder="0,00" />
+      </div>
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="mp-obs" placeholder="Opcional..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('m-pag')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save-pag" onclick="savePagamento()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Usuário -->
+<div class="modal-backdrop" id="m-user">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="m-user-title">Novo Usuário</h3>
+      <button class="modal-close" onclick="closeModal('m-user')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mu-id" />
+      <div class="form-group">
+        <label>Nome *</label>
+        <input id="mu-nome" placeholder="Nome completo" />
+      </div>
+      <div class="form-group">
+        <label>E-mail *</label>
+        <input id="mu-email" type="email" placeholder="email@solanea.pb.gov.br" />
+      </div>
+      <div class="form-group">
+        <label>Senha <span id="mu-senha-hint" class="text-muted">(deixe em branco para manter)</span></label>
+        <input id="mu-senha" type="password" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <div class="form-group">
+        <label>Perfil</label>
+        <select id="mu-admin">
+          <option value="false">Operador</option>
+          <option value="true">Administrador</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('m-user')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveUsuario()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Certidão -->
+<div class="modal-backdrop" id="m-certidao">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Certidão de Situação Cadastral</h3>
+      <button class="modal-close" onclick="closeModal('m-certidao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="certidao-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('m-certidao')">Fechar</button>
+      <button class="btn btn-primary" id="btn-cert-pdf">📄 Baixar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmação -->
+<div class="modal-backdrop" id="m-confirm">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3 id="m-confirm-title">Confirmar Ação</h3>
+      <button class="modal-close" onclick="closeModal('m-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="m-confirm-text" style="color:var(--text-muted);font-size:.9rem"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('m-confirm')">Cancelar</button>
+      <button class="btn btn-danger" id="btn-confirm-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
