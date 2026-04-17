@@ -118,6 +118,7 @@ function showTab(tab) {
   else if (tab === 'cessionarios') loadCessionarios();
   else if (tab === 'pagamentos') loadPagamentos();
   else if (tab === 'usuarios') loadUsuarios();
+  else if (tab === 'relatorios') initRelatorios();
 }
 
 document.getElementById('sidebar-nav').addEventListener('click', e => {
@@ -836,6 +837,21 @@ function downloadRelatorio(tipo, formato, params) {
   const ext = formato === 'xlsx' ? 'xlsx' : 'pdf';
   const url = `${API}/relatorios/${tipo}/${formato}${qs}`;
   fetchDownload(url, `${tipo}.${ext}`);
+}
+
+function gerarComprovantes() {
+  const input = document.getElementById('r-comp-data');
+  const dataRef = input?.value || today();
+  const url = `${API}/relatorios/comprovantes/pdf?data_ref=${dataRef}`;
+  const filename = `comprovantes_cobranca_${dataRef}.pdf`;
+  toast('Gerando comprovantes…', 'info');
+  fetchDownload(url, filename);
+}
+
+// Preenche data padrão dos comprovantes com hoje ao carregar a aba de relatórios
+function initRelatorios() {
+  const el = document.getElementById('r-comp-data');
+  if (el && !el.value) el.value = today();
 }
 
 // ── Pagination helper ─────────────────────────────────────────────────────────

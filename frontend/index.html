@@ -453,6 +453,26 @@
             </div>
           </div>
 
+          <!-- Comprovantes de Cobrança -->
+          <div class="report-card report-card-highlight">
+            <div class="report-card-header">
+              <div class="report-icon report-icon-accent">
+                <span class="material-symbols-outlined">receipt_long</span>
+              </div>
+              <h4>Comprovantes de Cobrança</h4>
+            </div>
+            <p>Gera comprovantes individuais por cessionário com campo de assinatura — um por box, prontos para impressão e coleta.</p>
+            <div class="report-filter-row" style="align-items:center;gap:.75rem;">
+              <label style="font-size:.75rem;font-weight:600;color:var(--on-surface-variant);white-space:nowrap;">Data de referência</label>
+              <input id="r-comp-data" type="date" class="report-filter-input" />
+            </div>
+            <div class="report-actions">
+              <button class="btn btn-primary" onclick="gerarComprovantes()">
+                <span class="material-symbols-outlined">picture_as_pdf</span> Gerar PDF
+              </button>
+            </div>
+          </div>
+
         </div>
       </div><!-- /t-relatorios -->
 

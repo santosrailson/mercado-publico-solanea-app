@@ -1108,3 +1108,192 @@ async def xlsx_geral(_: dict = Depends(require_admin)):
     return Response(content=xlsx,
                     media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     headers={"Content-Disposition": "attachment; filename=relatorio_geral.xlsx"})
+
+
+# ── Comprovantes de Cobrança ─────────────────────────────────────────────────
+
+def _build_pdf_comprovantes(cessionarios: list, data_ref: str) -> bytes:
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import cm, mm
+    from reportlab.platypus import (
+        SimpleDocTemplate, Table, TableStyle, Paragraph,
+        Spacer, KeepTogether
+    )
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+
+    # Parse data_ref
+    try:
+        dr = date.fromisoformat(data_ref)
+        data_ref_fmt = dr.strftime("%d/%m/%Y")
+    except Exception:
+        data_ref_fmt = data_ref
+
+    emissao = datetime.now().strftime("%d/%m/%Y")
+
+    navy   = colors.HexColor("#00113a")
+    branco = colors.white
+    cinza_claro = colors.HexColor("#f2f4f7")
+    borda  = colors.HexColor("#c5c6d2")
+
+    buf = io.BytesIO()
+
+    # Page header callback
+    def _header(canvas, doc):
+        canvas.saveState()
+        w, h = A4
+        canvas.setFont("Helvetica-Bold", 8)
+        canvas.setFillColor(navy)
+        canvas.drawString(1.5 * cm, h - 1.1 * cm,
+                          "Relatório de Cobrança – Mercado Público de Solânea")
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.HexColor("#444650"))
+        pg_txt = f"Data de Emissão: {emissao}  |  Página {doc.page} de {_total_pages[0]}"
+        canvas.drawRightString(w - 1.5 * cm, h - 1.1 * cm, pg_txt)
+        # thin separator line
+        canvas.setStrokeColor(borda)
+        canvas.setLineWidth(0.4)
+        canvas.line(1.5 * cm, h - 1.4 * cm, w - 1.5 * cm, h - 1.4 * cm)
+        canvas.restoreState()
+
+    # Two-pass: first pass to count pages
+    _total_pages = [1]
+
+    def _first_pass(canvas, doc):
+        _total_pages[0] = max(_total_pages[0], doc.page)
+
+    styles = getSampleStyleSheet()
+
+    label_style = ParagraphStyle(
+        "Label", fontName="Helvetica-Bold", fontSize=7.5,
+        textColor=colors.HexColor("#444650"), leading=10
+    )
+    value_style = ParagraphStyle(
+        "Value", fontName="Helvetica", fontSize=8.5,
+        textColor=colors.HexColor("#191c1e"), leading=11
+    )
+    header_style = ParagraphStyle(
+        "CHeader", fontName="Helvetica-Bold", fontSize=8,
+        textColor=branco, alignment=TA_LEFT, leading=10
+    )
+    sign_style = ParagraphStyle(
+        "Sign", fontName="Helvetica", fontSize=7.5,
+        textColor=colors.HexColor("#757682"),
+        alignment=TA_RIGHT, leading=10
+    )
+
+    def make_comprovante(cess):
+        nome  = cess.get("nome") or "–"
+        box   = cess.get("numero_box") or "–"
+        per   = cess.get("per_ref") or "–"
+        valor = f"R$ {cess.get('valor_ref', 0.0):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+        data_row = [
+            [
+                Table(
+                    [[Paragraph("COMPROVANTE DE PAGAMENTO / COBRANÇA", header_style)]],
+                    colWidths=["100%"],
+                    style=TableStyle([
+                        ("BACKGROUND", (0,0), (-1,-1), navy),
+                        ("TOPPADDING",    (0,0), (-1,-1), 5),
+                        ("BOTTOMPADDING", (0,0), (-1,-1), 5),
+                        ("LEFTPADDING",   (0,0), (-1,-1), 8),
+                        ("RIGHTPADDING",  (0,0), (-1,-1), 8),
+                    ])
+                ),
+            ],
+            [Paragraph("Cessionário:", label_style), Paragraph(nome, value_style), "", ""],
+            [Paragraph("Box/Ponto:",   label_style), Paragraph(box,  value_style),
+             Paragraph("Periodicidade:", label_style), Paragraph(per, value_style)],
+            [Paragraph("Valor:",       label_style), Paragraph(valor, value_style),
+             Paragraph("Data Ref.:",   label_style), Paragraph(data_ref_fmt, value_style)],
+            ["", "", "", Paragraph("Assinatura / Carimbo Responsável", sign_style)],
+        ]
+
+        col_w = [2.5*cm, 7.5*cm, 3.5*cm, 5.5*cm]
+
+        t = Table(data_row, colWidths=col_w, rowHeights=[1*cm, 0.8*cm, 0.8*cm, 0.8*cm, 1.0*cm])
+        t.setStyle(TableStyle([
+            # outer border
+            ("BOX",      (0,0), (-1,-1), 0.6, borda),
+            # header spans full width
+            ("SPAN",     (0,0), (-1,0)),
+            # cessionario spans cols 1-3
+            ("SPAN",     (1,1), (-1,1)),
+            # vertical align middle
+            ("VALIGN",   (0,0), (-1,-1), "MIDDLE"),
+            # row backgrounds
+            ("BACKGROUND", (0,1), (-1,-1), branco),
+            ("BACKGROUND", (0,2), (-1,2), cinza_claro),
+            ("BACKGROUND", (0,4), (-1,4), branco),
+            # paddings
+            ("LEFTPADDING",   (0,1), (-1,-1), 6),
+            ("RIGHTPADDING",  (0,1), (-1,-1), 6),
+            ("TOPPADDING",    (0,1), (-1,-1), 4),
+            ("BOTTOMPADDING", (0,1), (-1,-1), 4),
+            # signature row: dashed top line
+            ("LINEABOVE", (0,4), (-1,4), 0.4, colors.HexColor("#c5c6d2"), 1, None, None, 2, 2),
+        ]))
+        return KeepTogether([t, Spacer(1, 4*mm)])
+
+    elements = [make_comprovante(c) for c in cessionarios]
+
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=A4,
+        leftMargin=1.5*cm,
+        rightMargin=1.5*cm,
+        topMargin=1.8*cm,
+        bottomMargin=1.5*cm,
+    )
+
+    # First build to count pages
+    import copy
+    buf_tmp = io.BytesIO()
+    doc_tmp = SimpleDocTemplate(
+        buf_tmp,
+        pagesize=A4,
+        leftMargin=1.5*cm,
+        rightMargin=1.5*cm,
+        topMargin=1.8*cm,
+        bottomMargin=1.5*cm,
+    )
+    doc_tmp.build(elements, onFirstPage=_first_pass, onLaterPages=_first_pass)
+
+    # Second build with correct page count
+    elements2 = [make_comprovante(c) for c in cessionarios]
+    doc.build(elements2, onFirstPage=_header, onLaterPages=_header)
+
+    return buf.getvalue()
+
+
+@router.get("/comprovantes/pdf")
+async def comprovantes_pdf(
+    data_ref: Optional[str] = Query(default=None),
+    user: dict = Depends(get_current_user),
+):
+    """Gera PDF com comprovantes de cobrança individuais por cessionário."""
+    if data_ref is None:
+        data_ref = date.today().isoformat()
+
+    async with get_db() as db:
+        if user.get("is_admin"):
+            async with db.execute(
+                "SELECT * FROM cessionarios ORDER BY numero_box, nome"
+            ) as c:
+                rows = await c.fetchall()
+        else:
+            async with db.execute(
+                "SELECT * FROM cessionarios WHERE criado_por = ? ORDER BY numero_box, nome",
+                (user["sub"],)
+            ) as c:
+                rows = await c.fetchall()
+
+    cessionarios = [dict(r) for r in rows]
+    pdf = _build_pdf_comprovantes(cessionarios, data_ref)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=comprovantes_cobranca_{data_ref}.pdf"},
+    )

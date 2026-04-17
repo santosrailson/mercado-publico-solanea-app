@@ -1271,6 +1271,15 @@ table thead tr { border-bottom: 1px solid var(--surface-container-high); }
   flex-wrap: wrap;
   margin-bottom: .75rem;
 }
+.report-card-highlight {
+  border-top: 3px solid var(--secondary);
+}
+.report-icon-accent {
+  background: var(--secondary-container);
+}
+.report-icon-accent .material-symbols-outlined {
+  color: var(--on-secondary-container);
+}
 
 /* ── Certidão preview ─────────────────────────────────────────────────────── */
 .certidao-preview {
