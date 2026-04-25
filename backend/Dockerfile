@@ -24,6 +24,6 @@ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 RUN chown -R appuser:appuser /app/data && chmod 755 /app/data
 USER appuser
 
-EXPOSE 8000
+EXPOSE 8007
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8007"]

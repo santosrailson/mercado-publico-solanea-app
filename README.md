@@ -75,7 +75,7 @@ docker-compose up -d
 
 # Acesse
 # Frontend: http://localhost
-# API Docs: http://localhost:8000/docs
+# API Docs: http://localhost:8007/docs
 ```
 
 ### Desenvolvimento Local
@@ -105,8 +105,8 @@ npm run dev
 ## 📚 Documentação da API
 
 Com o backend rodando, acesse:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+- Swagger UI: `http://localhost:8007/docs`
+- ReDoc: `http://localhost:8007/redoc`
 
 ## 🧪 Testes
 

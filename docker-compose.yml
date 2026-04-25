@@ -8,7 +8,7 @@ services:
     container_name: mercado-backend
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8007:8007"
     environment:
       - DATABASE_URL=sqlite:///./data/mercado.db
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
@@ -18,7 +18,7 @@ services:
     networks:
       - mercado-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8007/health"]
       interval: 30s
       timeout: 10s
       retries: 3
