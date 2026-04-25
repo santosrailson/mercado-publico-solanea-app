@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Tema Escuro (padrão) */
+    --bg: #07111e;
+    --surface: #0d1b2a;
+    --surface2: #122436;
+    --surface3: #172d44;
+    --border: rgba(0,200,150,.12);
+    --border2: rgba(0,200,150,.20);
+    --text: #dff4ee;
+    --text2: #7fb8a8;
+    --muted: #4a7a6e;
+    --gold: #00c896;
+    --gold2: #00dfa8;
+    --chart-bg: #0d1b2a;
+    --chart-text: #dff4ee;
+  }
+  
+  .light {
+    /* Tema Claro */
+    --bg: #f0f9f6;
+    --surface: #ffffff;
+    --surface2: #e8f5f0;
+    --surface3: #d0ebe0;
+    --border: rgba(0,150,110,.15);
+    --border2: rgba(0,150,110,.25);
+    --text: #064e3b;
+    --text2: #065f46;
+    --muted: #047857;
+    --gold: #059669;
+    --gold2: #10b981;
+    --chart-bg: #ffffff;
+    --chart-text: #064e3b;
+  }
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-[var(--bg)] text-[var(--text)];
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 md:p-6;
+    @apply shadow-lg;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-600 text-white rounded-lg font-medium;
+    @apply hover:bg-primary-700 transition-all;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-[var(--surface2)] text-[var(--text)] rounded-lg font-medium;
+    @apply border border-[var(--border)] hover:bg-[var(--surface3)] transition-all;
+  }
+  
+  .input {
+    @apply w-full px-3 md:px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg;
+    @apply text-[var(--text)] placeholder-[var(--muted)];
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply text-sm md:text-base;
+    transition: all 0.2s ease;
+  }
+  
+  .kpi-card {
+    @apply card flex items-center gap-3 md:gap-4;
+  }
+  
+  .kpi-icon {
+    @apply w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-lg md:text-xl;
+    @apply bg-primary-500/20 text-primary-600 flex-shrink-0;
+  }
+  
+  .sidebar {
+    @apply fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-[#060f1a] to-[#0d1b2a];
+    @apply border-r border-[var(--border)] z-50;
+    @apply transform -translate-x-full lg:translate-x-0 transition-transform duration-300;
+  }
+  
+  .sidebar.open {
+    @apply translate-x-0;
+  }
+  
+  .nav-item {
+    @apply flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-lg mx-2;
+    @apply text-[var(--text2)] hover:bg-white/5 hover:text-[var(--text)] transition-all;
+    @apply text-sm md:text-base;
+  }
+  
+  .nav-item.active {
+    @apply bg-gradient-to-r from-primary-500/20 to-primary-400/10;
+    @apply text-[var(--text)] border border-primary-500/30;
+  }
+  
+  /* Layout responsivo */
+  .main-content {
+    @apply lg:ml-64 min-h-screen transition-all duration-300;
+  }
+  
+  .page-container {
+    @apply p-4 md:p-6 max-w-full overflow-x-hidden;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Tooltip customizado para gráficos */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+.recharts-default-tooltip {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+}
+
+.recharts-tooltip-item {
+  color: var(--text2) !important;
+}
+
+/* Tabela responsiva */
+.table-responsive {
+  @apply overflow-x-auto -mx-4 px-4;
+}
+
+/* Grid responsivo para KPIs */
+.kpi-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4;
+}
+
+/* Charts grid responsivo */
+.charts-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6;
+}
+
+/* Modal responsivo */
+.modal-content {
+  @apply w-[95%] max-w-lg mx-4;
+}
+
+/* Overlay para mobile */
+.overlay {
+  @apply fixed inset-0 bg-black/50 z-40 lg:hidden;
+}
+
+/* Esconder elementos em mobile/desktop */
+.hide-mobile {
+  @apply hidden md:block;
+}
+
+.hide-desktop {
+  @apply block md:hidden;
+}
