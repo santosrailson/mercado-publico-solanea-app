@@ -74,7 +74,7 @@ cd mercado-publico
 docker-compose up -d
 
 # Acesse
-# Frontend: http://localhost
+# Frontend: http://localhost:8080
 # API Docs: http://localhost:8007/docs
 ```
 
@@ -98,7 +98,7 @@ npm run dev
 
 ## 🔑 Primeiro Acesso
 
-1. Acesse o sistema em `http://localhost`
+1. Acesse o sistema em `http://localhost:8080`
 2. Crie um usuário inicial via API ou use o endpoint de seed
 3. Faça login com as credenciais criadas
 
