@@ -7,6 +7,7 @@ interface ListParams {
   search?: string
   situacao?: string
   atividade?: string
+  fiscal_id?: number
 }
 
 export const cessionariosApi = {

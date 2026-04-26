@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { FileText, FileSpreadsheet, Download, Calendar } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { FileText, FileSpreadsheet, Download, Calendar, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { relatoriosApi } from '@/services/relatorios'
+import { fiscaisApi } from '@/services/fiscais'
 import { RelatorioTipo, ExportFormato } from '@/types'
 
 const relatorioOptions: { value: RelatorioTipo; label: string; desc: string }[] = [
@@ -22,6 +23,13 @@ export function RelatoriosPage() {
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
   const [dataCobranca, setDataCobranca] = useState('')
+  const [fiscalId, setFiscalId] = useState('')
+
+  const { data: fiscais } = useQuery({
+    queryKey: ['fiscais-ativos'],
+    queryFn: fiscaisApi.getAtivos,
+    staleTime: 5 * 60 * 1000,
+  })
 
   const exportMutation = useMutation({
     mutationFn: relatoriosApi.exportar,
@@ -48,6 +56,7 @@ export function RelatoriosPage() {
       data_inicio: dataInicio || undefined,
       data_fim: dataFim || undefined,
       data_cobranca: dataCobranca || undefined,
+      fiscal_id: fiscalId ? parseInt(fiscalId) : undefined,
     })
   }
 
@@ -156,6 +165,26 @@ export function RelatoriosPage() {
                 />
                 <p className="text-xs text-[var(--text2)]">
                   Se não informada, será usada a data atual nos recibos.
+                </p>
+
+                <label className="block text-sm font-medium text-[var(--text2)]">
+                  <ShieldCheck className="w-4 h-4 inline mr-1" />
+                  Fiscal (opcional)
+                </label>
+                <select
+                  value={fiscalId}
+                  onChange={(e) => setFiscalId(e.target.value)}
+                  className="input"
+                >
+                  <option value="">Todos os fiscais</option>
+                  {fiscais?.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.nome}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-[var(--text2)]">
+                  Selecione um fiscal para gerar cobrança apenas dos cessionários vinculados a ele.
                 </p>
               </div>
             )}

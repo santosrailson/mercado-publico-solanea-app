@@ -26,6 +26,8 @@ def cessionario_to_dict(c) -> dict:
         "valor_referencia": c.valor_referencia,
         "periodicidade_referencia": c.periodicidade_referencia.value if c.periodicidade_referencia else None,
         "observacoes": c.observacoes,
+        "fiscal_id": c.fiscal_id,
+        "fiscal_nome": c.fiscal.nome if c.fiscal else None,
         "created_at": c.created_at.isoformat() if c.created_at else None,
         "updated_at": c.updated_at.isoformat() if c.updated_at else None,
     }
@@ -38,6 +40,7 @@ def list_cessionarios(
     search: Optional[str] = None,
     situacao: Optional[str] = None,
     atividade: Optional[str] = None,
+    fiscal_id: Optional[int] = None,
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id)
 ):
@@ -53,10 +56,10 @@ def list_cessionarios(
     
     cessionarios, total = crud.get_cessionarios(
         db, skip=skip, limit=limit,
-        search=search, situacao=sit_filter, atividade=atividade
+        search=search, situacao=sit_filter, atividade=atividade, fiscal_id=fiscal_id
     )
     
-    # Converter para dict
+    # Converter para dict com informação do fiscal
     items = [cessionario_to_dict(c) for c in cessionarios]
     
     return {
@@ -76,7 +79,7 @@ def get_atividades(
     return crud.get_atividades_distintas(db)
 
 
-@router.get("/{cessionario_id}", response_model=CessionarioResponse)
+@router.get("/{cessionario_id}", response_model=dict)
 def get_cessionario(
     cessionario_id: int,
     db: Session = Depends(get_db),
@@ -86,20 +89,22 @@ def get_cessionario(
     cessionario = crud.get_cessionario(db, cessionario_id)
     if not cessionario:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")
-    return cessionario
+    return cessionario_to_dict(cessionario)
 
 
-@router.post("", response_model=CessionarioResponse, status_code=201)
+@router.post("", response_model=dict, status_code=201)
 def create_cessionario(
     data: CessionarioCreate,
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Cria novo cessionário"""
-    return crud.create_cessionario(db, data)
+    novo = crud.create_cessionario(db, data)
+    # Recarrega com relacionamento fiscal
+    return cessionario_to_dict(crud.get_cessionario(db, novo.id))
 
 
-@router.put("/{cessionario_id}", response_model=CessionarioResponse)
+@router.put("/{cessionario_id}", response_model=dict)
 def update_cessionario(
     cessionario_id: int,
     data: CessionarioUpdate,
@@ -110,7 +115,8 @@ def update_cessionario(
     cessionario = crud.update_cessionario(db, cessionario_id, data)
     if not cessionario:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")
-    return cessionario
+    # Recarrega com relacionamento fiscal
+    return cessionario_to_dict(crud.get_cessionario(db, cessionario.id))
 
 
 @router.delete("/{cessionario_id}")

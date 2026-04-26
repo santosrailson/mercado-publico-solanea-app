@@ -46,6 +46,22 @@ class User(Base):
     pagamentos_registrados = relationship("Pagamento", back_populates="registrado_por")
 
 
+class Fiscal(Base):
+    __tablename__ = "fiscais"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String(100), nullable=False)
+    matricula = Column(String(50), nullable=True, unique=True)
+    telefone = Column(String(20), nullable=True)
+    email = Column(String(100), nullable=True)
+    ativo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    cessionarios = relationship("Cessionario", back_populates="fiscal")
+
+
 class Cessionario(Base):
     __tablename__ = "cessionarios"
     
@@ -58,11 +74,13 @@ class Cessionario(Base):
     valor_referencia = Column(Float, default=0.0)
     periodicidade_referencia = Column(Enum(Periodicidade), default=Periodicidade.MENSAL)
     observacoes = Column(Text, nullable=True)
+    fiscal_id = Column(Integer, ForeignKey("fiscais.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     pagamentos = relationship("Pagamento", back_populates="cessionario", cascade="all, delete-orphan")
+    fiscal = relationship("Fiscal", back_populates="cessionarios")
 
 
 class Pagamento(Base):

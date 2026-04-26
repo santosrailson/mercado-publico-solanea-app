@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Search, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, MessageCircle } from 'lucide-react'
 import { ConfirmModal } from '@/components/modals/ConfirmModal'
 import toast from 'react-hot-toast'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -18,6 +18,7 @@ export function PagamentosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingPagamento, setEditingPagamento] = useState<Pagamento | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; nome: string } | null>(null)
+  const [confirmWhatsApp, setConfirmWhatsApp] = useState<Pagamento | null>(null)
   const limit = 10
 
   const { data, isLoading } = useQuery({
@@ -38,6 +39,37 @@ export function PagamentosPage() {
     },
     onError: () => toast.error('Erro ao remover'),
   })
+
+  const handleShareWhatsApp = (pagamento: Pagamento) => {
+    const telefone = pagamento.cessionario_telefone
+    if (!telefone) {
+      toast.error('Cessionário não possui telefone cadastrado')
+      return
+    }
+
+    // Remove caracteres não numéricos
+    const numeroLimpo = telefone.replace(/\D/g, '')
+    // Adiciona prefixo 55 se não tiver
+    const numeroComDDD = numeroLimpo.startsWith('55') && numeroLimpo.length >= 12
+      ? numeroLimpo
+      : `55${numeroLimpo}`
+
+    const nome = pagamento.cessionario_nome || 'Cessionário'
+    const valor = formatCurrency(pagamento.valor)
+    const referencia = pagamento.referencia_mes || pagamento.periodicidade
+    const data = formatDate(pagamento.data_pagamento)
+
+    const mensagem = `Olá ${nome}, tudo bem?\n\n` +
+      `✅ Confirmamos o recebimento do seu pagamento!\n\n` +
+      `💰 Valor: ${valor}\n` +
+      `📅 Data: ${data}\n` +
+      `📝 Referência: ${referencia}\n\n` +
+      `Obrigado pela pontualidade! Qualquer dúvida, estamos à disposição.`
+
+    const url = `https://wa.me/${numeroComDDD}?text=${encodeURIComponent(mensagem)}`
+    window.open(url, '_blank')
+    setConfirmWhatsApp(null)
+  }
 
   const totalPages = data?.pages || 1
 
@@ -130,14 +162,21 @@ export function PagamentosPage() {
                     </td>
                     <td className="p-3 md:p-4">
                       <div className="flex items-center gap-1 md:gap-2">
-                        <button 
+                        <button
+                          onClick={() => setConfirmWhatsApp(p)}
+                          className="p-1.5 md:p-2 rounded-lg hover:bg-green-500/20 text-green-400 transition-colors"
+                          title="Enviar confirmação via WhatsApp"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        </button>
+                        <button
                           onClick={() => { setEditingPagamento(p); setIsModalOpen(true) }}
                           className="p-1.5 md:p-2 rounded-lg hover:bg-white/10 text-[var(--text2)] transition-colors"
                           title="Editar"
                         >
                           <Edit className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => setConfirmDelete({ id: p.id, nome: p.cessionario_nome || 'Pagamento' })}
                           className="p-1.5 md:p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
                           title="Remover"
@@ -205,6 +244,24 @@ export function PagamentosPage() {
         confirmText="Remover"
         cancelText="Cancelar"
         isLoading={deleteMutation.isPending}
+      />
+
+      <ConfirmModal
+        isOpen={!!confirmWhatsApp}
+        onClose={() => setConfirmWhatsApp(null)}
+        onConfirm={() => {
+          if (confirmWhatsApp) {
+            handleShareWhatsApp(confirmWhatsApp)
+          }
+        }}
+        title="Enviar confirmação via WhatsApp"
+        message={
+          confirmWhatsApp
+            ? `Deseja enviar a mensagem de confirmação de pagamento para ${confirmWhatsApp.cessionario_nome}${confirmWhatsApp.cessionario_telefone ? ` (${confirmWhatsApp.cessionario_telefone})` : ''}?`
+            : ''
+        }
+        confirmText="Enviar"
+        cancelText="Cancelar"
       />
     </div>
   )

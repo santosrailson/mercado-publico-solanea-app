@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { cessionariosApi } from '@/services/cessionarios'
+import { fiscaisApi } from '@/services/fiscais'
 import { Cessionario } from '@/types'
 
 interface CessionarioModalProps {
@@ -25,6 +26,13 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
     valor_referencia: '',
     periodicidade_referencia: 'Mensal' as 'Mensal' | 'Semanal' | 'Quinzenal' | 'Único',
     observacoes: '',
+    fiscal_id: '' as string,
+  })
+
+  const { data: fiscais } = useQuery({
+    queryKey: ['fiscais-ativos'],
+    queryFn: fiscaisApi.getAtivos,
+    staleTime: 5 * 60 * 1000,
   })
 
   // Preencher formulário quando estiver editando
@@ -39,6 +47,7 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
         valor_referencia: cessionario.valor_referencia?.toString() || '',
         periodicidade_referencia: cessionario.periodicidade_referencia || 'Mensal',
         observacoes: cessionario.observacoes || '',
+        fiscal_id: cessionario.fiscal_id?.toString() || '',
       })
     } else {
       // Reset ao abrir para criar novo
@@ -51,6 +60,7 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
         valor_referencia: '',
         periodicidade_referencia: 'Mensal',
         observacoes: '',
+        fiscal_id: '',
       })
     }
   }, [cessionario, isOpen])
@@ -86,8 +96,9 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
     const data = {
       ...formData,
       valor_referencia: parseFloat(formData.valor_referencia) || 0,
+      fiscal_id: formData.fiscal_id ? parseInt(formData.fiscal_id) : null,
     }
-    
+
     if (isEditing && cessionario) {
       updateMutation.mutate({ id: cessionario.id, data })
     } else {
@@ -195,6 +206,24 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
               <option value="Único">Único</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-[var(--text2)] mb-1">
+            Fiscal responsável
+          </label>
+          <select
+            value={formData.fiscal_id}
+            onChange={(e) => setFormData({ ...formData, fiscal_id: e.target.value })}
+            className="input"
+          >
+            <option value="">Selecione um fiscal...</option>
+            {fiscais?.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nome}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

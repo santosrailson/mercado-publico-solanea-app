@@ -9,6 +9,17 @@ export interface User {
   created_at: string;
 }
 
+export interface Fiscal {
+  id: number;
+  nome: string;
+  matricula: string | null;
+  telefone: string | null;
+  email: string | null;
+  ativo: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Cessionario {
   id: number;
   nome: string;
@@ -19,6 +30,8 @@ export interface Cessionario {
   valor_referencia: number;
   periodicidade_referencia: 'Mensal' | 'Semanal' | 'Quinzenal' | 'Único';
   observacoes: string | null;
+  fiscal_id: number | null;
+  fiscal_nome?: string | null;
   created_at: string;
   updated_at: string;
   ultimo_pagamento?: string;
@@ -28,6 +41,7 @@ export interface Pagamento {
   id: number;
   cessionario_id: number;
   cessionario_nome?: string;
+  cessionario_telefone?: string | null;
   valor: number;
   data_pagamento: string;
   periodicidade: 'Mensal' | 'Semanal' | 'Quinzenal' | 'Único';
@@ -101,5 +115,6 @@ export interface RelatorioFiltros {
   data_fim?: string;
   data_referencia?: string;
   data_cobranca?: string;
+  fiscal_id?: number;
   formato: ExportFormato;
 }

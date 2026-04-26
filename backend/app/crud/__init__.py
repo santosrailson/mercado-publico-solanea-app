@@ -1,2 +1,2 @@
 # CRUD package
-from . import user, cessionario, pagamento
+from . import user, cessionario, pagamento, fiscal

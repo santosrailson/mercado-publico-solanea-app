@@ -95,7 +95,9 @@ def exportar_relatorio(
                           headers={"Content-Disposition": "attachment; filename=cessionarios.xlsx"})
     
     elif filtros.tipo == "cobranca":
-        cessionarios, _ = crud_cess.get_cessionarios(db, skip=0, limit=10000)
+        cessionarios, _ = crud_cess.get_cessionarios(
+            db, skip=0, limit=10000, fiscal_id=filtros.fiscal_id
+        )
         if formato == "pdf":
             pdf = generate_recibos_cobranca_pdf(cessionarios, filtros.data_cobranca)
             return Response(content=pdf, media_type="application/pdf",

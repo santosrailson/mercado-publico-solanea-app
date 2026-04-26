@@ -6,6 +6,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { CessionariosPage } from '@/pages/CessionariosPage'
 import { PagamentosPage } from '@/pages/PagamentosPage'
 import { RelatoriosPage } from '@/pages/RelatoriosPage'
+import { FiscaisPage } from '@/pages/FiscaisPage'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -52,6 +53,16 @@ function App() {
           <PrivateRoute>
             <Layout>
               <RelatoriosPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/fiscais"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <FiscaisPage />
             </Layout>
           </PrivateRoute>
         }

@@ -37,11 +37,6 @@ export function PagamentoModal({ isOpen, onClose, pagamento }: PagamentoModalPro
     enabled: isOpen,
   })
 
-  // Debug
-  console.log('Modal isOpen:', isOpen)
-  console.log('Cessionarios data:', cessionarios)
-  console.log('Error:', error)
-
   // Preencher formulário quando estiver editando
   useEffect(() => {
     if (pagamento) {
@@ -136,7 +131,26 @@ export function PagamentoModal({ isOpen, onClose, pagamento }: PagamentoModalPro
           ) : (
             <select
               value={formData.cessionario_id}
-              onChange={(e) => setFormData({ ...formData, cessionario_id: e.target.value })}
+              onChange={(e) => {
+                const cessionarioId = e.target.value
+                setFormData((prev) => {
+                  // Se estiver editando, só atualiza o ID
+                  if (isEditing) return { ...prev, cessionario_id: cessionarioId }
+
+                  // Se estiver criando novo, busca dados do cessionário e preenche
+                  const selected = cessionarios?.items.find((c) => c.id.toString() === cessionarioId)
+                  if (selected) {
+                    return {
+                      ...prev,
+                      cessionario_id: cessionarioId,
+                      valor: selected.valor_referencia?.toString() || '',
+                      periodicidade: selected.periodicidade_referencia || 'Mensal',
+                      observacoes: selected.observacoes || '',
+                    }
+                  }
+                  return { ...prev, cessionario_id: cessionarioId }
+                })
+              }}
               className="input"
               disabled={isEditing}
             >

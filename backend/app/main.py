@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import get_settings
 from app.db.database import engine, Base
-from app.api import auth, cessionarios, pagamentos, dashboard, relatorios, users
+from app.api import auth, cessionarios, pagamentos, dashboard, relatorios, users, fiscais
 from app.db.seed import seed_data
 
 settings = get_settings()
@@ -42,6 +42,7 @@ app.include_router(pagamentos.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
 app.include_router(relatorios.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
+app.include_router(fiscais.router, prefix="/api/v1")
 
 
 @app.get("/")

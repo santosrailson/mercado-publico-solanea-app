@@ -44,6 +44,36 @@ class Token(BaseModel):
     user: UserResponse
 
 
+# ============== FISCAL SCHEMAS ==============
+
+class FiscalBase(BaseModel):
+    nome: str
+    matricula: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    ativo: bool = True
+
+
+class FiscalCreate(FiscalBase):
+    pass
+
+
+class FiscalUpdate(BaseModel):
+    nome: Optional[str] = None
+    matricula: Optional[str] = None
+    telefone: Optional[str] = None
+    email: Optional[str] = None
+    ativo: Optional[bool] = None
+
+
+class FiscalResponse(FiscalBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+
 # ============== CESSIONÁRIO SCHEMAS ==============
 
 class CessionarioBase(BaseModel):
@@ -55,6 +85,7 @@ class CessionarioBase(BaseModel):
     valor_referencia: float = 0.0
     periodicidade_referencia: Periodicidade = Periodicidade.MENSAL
     observacoes: Optional[str] = None
+    fiscal_id: Optional[int] = None
 
 
 class CessionarioCreate(CessionarioBase):
@@ -70,6 +101,7 @@ class CessionarioUpdate(BaseModel):
     valor_referencia: Optional[float] = None
     periodicidade_referencia: Optional[Periodicidade] = None
     observacoes: Optional[str] = None
+    fiscal_id: Optional[int] = None
 
 
 class CessionarioResponse(CessionarioBase):
@@ -79,6 +111,7 @@ class CessionarioResponse(CessionarioBase):
     created_at: datetime
     updated_at: datetime
     ultimo_pagamento: Optional[datetime] = None
+    fiscal_nome: Optional[str] = None
 
 
 class CessionarioDetailResponse(CessionarioResponse):
@@ -89,6 +122,7 @@ class CessionarioListFilters(BaseModel):
     search: Optional[str] = None
     situacao: Optional[Situacao] = None
     atividade: Optional[str] = None
+    fiscal_id: Optional[int] = None
     skip: int = 0
     limit: int = 20
 
@@ -165,6 +199,7 @@ class RelatorioFiltros(BaseModel):
     data_fim: Optional[date] = None
     data_referencia: Optional[date] = None
     data_cobranca: Optional[date] = None
+    fiscal_id: Optional[int] = None
     formato: str = "pdf"  # pdf, excel
 
 

@@ -20,6 +20,7 @@ def pagamento_to_dict(p) -> dict:
         "id": p.id,
         "cessionario_id": p.cessionario_id,
         "cessionario_nome": p.cessionario.nome if p.cessionario else None,
+        "cessionario_telefone": p.cessionario.telefone if p.cessionario else None,
         "valor": p.valor,
         "data_pagamento": p.data_pagamento.isoformat() if p.data_pagamento else None,
         "periodicidade": p.periodicidade.value if p.periodicidade else None,

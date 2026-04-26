@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, or_, desc
 from typing import List, Optional
 from datetime import datetime
@@ -8,7 +8,7 @@ from app.schemas.schemas import CessionarioCreate, CessionarioUpdate
 
 
 def get_cessionario(db: Session, cessionario_id: int) -> Optional[Cessionario]:
-    return db.query(Cessionario).filter(Cessionario.id == cessionario_id).first()
+    return db.query(Cessionario).options(joinedload(Cessionario.fiscal)).filter(Cessionario.id == cessionario_id).first()
 
 
 def get_cessionarios(
@@ -17,7 +17,8 @@ def get_cessionarios(
     limit: int = 20,
     search: Optional[str] = None,
     situacao: Optional[Situacao] = None,
-    atividade: Optional[str] = None
+    atividade: Optional[str] = None,
+    fiscal_id: Optional[int] = None
 ) -> tuple[List[Cessionario], int]:
     query = db.query(Cessionario)
     
@@ -34,8 +35,11 @@ def get_cessionarios(
     if atividade:
         query = query.filter(Cessionario.atividade.ilike(f"%{atividade}%"))
     
+    if fiscal_id is not None:
+        query = query.filter(Cessionario.fiscal_id == fiscal_id)
+    
     total = query.count()
-    cessionarios = query.order_by(Cessionario.nome).offset(skip).limit(limit).all()
+    cessionarios = query.options(joinedload(Cessionario.fiscal)).order_by(Cessionario.nome).offset(skip).limit(limit).all()
     
     return cessionarios, total
 

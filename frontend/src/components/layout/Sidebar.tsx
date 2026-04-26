@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Users, 
-  CreditCard, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  FileText,
   LogOut,
   Store,
   X,
+  ShieldCheck,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { cn } from '@/utils'
@@ -16,16 +17,22 @@ interface SidebarProps {
   onClose: () => void
 }
 
-const navItems = [
+const baseNavItems = [
   { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/cessionarios', icon: Users, label: 'Cessionários' },
   { path: '/pagamentos', icon: CreditCard, label: 'Pagamentos' },
   { path: '/relatorios', icon: FileText, label: 'Relatórios' },
 ]
 
+const adminNavItems = [
+  { path: '/fiscais', icon: ShieldCheck, label: 'Fiscais' },
+]
+
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const logout = useAuthStore((state) => state.logout)
   const user = useAuthStore((state) => state.user)
+  const isAdmin = user?.role === 'admin'
+  const navItems = isAdmin ? [...baseNavItems, ...adminNavItems] : baseNavItems
 
   return (
     <>

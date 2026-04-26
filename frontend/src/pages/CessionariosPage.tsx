@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { CessionarioModal } from '@/components/modals/CessionarioModal'
 import { cessionariosApi } from '@/services/cessionarios'
+import { fiscaisApi } from '@/services/fiscais'
 import { relatoriosApi } from '@/services/relatorios'
 import { Cessionario } from '@/types'
 import { formatDate } from '@/utils'
@@ -15,17 +16,25 @@ export function CessionariosPage() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [situacao, setSituacao] = useState('')
+  const [fiscalId, setFiscalId] = useState('')
   const [page, setPage] = useState(1)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingCessionario, setEditingCessionario] = useState<Cessionario | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; nome: string } | null>(null)
   const limit = 10
 
+  const { data: fiscais } = useQuery({
+    queryKey: ['fiscais-ativos'],
+    queryFn: fiscaisApi.getAtivos,
+    staleTime: 5 * 60 * 1000,
+  })
+
   const { data, isLoading } = useQuery({
-    queryKey: ['cessionarios', search, situacao, page],
+    queryKey: ['cessionarios', search, situacao, fiscalId, page],
     queryFn: () => cessionariosApi.list({
       search: search || undefined,
       situacao: situacao || undefined,
+      fiscal_id: fiscalId ? parseInt(fiscalId) : undefined,
       skip: (page - 1) * limit,
       limit,
     }),
@@ -92,11 +101,23 @@ export function CessionariosPage() {
             <select
               value={situacao}
               onChange={(e) => { setSituacao(e.target.value); setPage(1) }}
-              className="input w-full sm:w-48"
+              className="input w-full sm:w-40"
             >
               <option value="">Todas situações</option>
               <option value="Regular">Regular</option>
               <option value="Irregular">Irregular</option>
+            </select>
+            <select
+              value={fiscalId}
+              onChange={(e) => { setFiscalId(e.target.value); setPage(1) }}
+              className="input w-full sm:w-48"
+            >
+              <option value="">Todos fiscais</option>
+              {fiscais?.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.nome}
+                </option>
+              ))}
             </select>
           </div>
         </CardContent>
@@ -112,6 +133,7 @@ export function CessionariosPage() {
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)]">Box</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden sm:table-cell">Atividade</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)]">Situação</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden lg:table-cell">Fiscal</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden md:table-cell">Cadastrado</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)]">Ações</th>
               </tr>
@@ -119,13 +141,13 @@ export function CessionariosPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="p-6 md:p-8 text-center text-[var(--muted)]">
+                  <td colSpan={7} className="p-6 md:p-8 text-center text-[var(--muted)]">
                     Carregando...
                   </td>
                 </tr>
               ) : data?.items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-6 md:p-8 text-center text-[var(--muted)]">
+                  <td colSpan={7} className="p-6 md:p-8 text-center text-[var(--muted)]">
                     Nenhum cessionário encontrado
                   </td>
                 </tr>
@@ -137,13 +159,14 @@ export function CessionariosPage() {
                     <td className="p-3 md:p-4 text-[var(--text2)] text-sm hidden sm:table-cell">{c.atividade || '-'}</td>
                     <td className="p-3 md:p-4">
                       <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                        c.situacao === 'Regular' 
-                          ? 'bg-green-500/20 text-green-400' 
+                        c.situacao === 'Regular'
+                          ? 'bg-green-500/20 text-green-400'
                           : 'bg-red-500/20 text-red-400'
                       }`}>
                         {c.situacao}
                       </span>
                     </td>
+                    <td className="p-3 md:p-4 text-[var(--text2)] text-sm hidden lg:table-cell">{c.fiscal_nome || '-'}</td>
                     <td className="p-3 md:p-4 text-[var(--text2)] text-sm hidden md:table-cell">{formatDate(c.created_at)}</td>
                     <td className="p-3 md:p-4">
                       <div className="flex items-center gap-1 md:gap-2">
