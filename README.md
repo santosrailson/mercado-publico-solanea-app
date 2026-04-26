@@ -1,8 +1,8 @@
 # Mercado Público - Sistema de Gestão
 
-Sistema moderno de gestão para o Mercado Público de Solânea - PB. 
+Sistema moderno de gestão para o Mercado Público de Solânea - PB.
 
-Arquitetura separada em backend (Python/FastAPI) e frontend (React/TypeScript), containerizado com Docker.
+Arquitetura separada em backend (Python/FastAPI) e frontend (React/TypeScript), containerizada com Docker.
 
 ## 🏗️ Arquitetura
 
@@ -16,6 +16,7 @@ mercado-publico/
 │   │   ├── models/      # SQLAlchemy models
 │   │   ├── schemas/     # Pydantic schemas
 │   │   └── services/    # PDF, Excel
+│   ├── scripts/         # Scripts utilitários
 │   └── Dockerfile
 ├── frontend/            # React + TypeScript + Vite
 │   ├── src/
@@ -52,14 +53,50 @@ mercado-publico/
 
 ## 📦 Funcionalidades
 
-- ✅ Dashboard com KPIs e gráficos
-- ✅ Gestão de cessionários/feirantes
-- ✅ Controle de pagamentos
-- ✅ Relatórios em PDF e Excel
-- ✅ Certidões de situação
-- ✅ Autenticação JWT
+### Gestão de Cessionários
+- ✅ Cadastro, edição e exclusão de cessionários/feirantes
+- ✅ Filtros por nome, box, situação e fiscal responsável
+- ✅ Auto-preenchimento de valores ao registrar pagamentos
+- ✅ Vinculação com fiscal responsável
+
+### Controle de Pagamentos
+- ✅ Registro de pagamentos com periodicidade
+- ✅ Compartilhamento via WhatsApp
+- ✅ Histórico completo por cessionário
+
+### Gestão de Fiscais
+- ✅ Cadastro de fiscais com dados pessoais
+- ✅ Vinculação de usuários do sistema aos fiscais
+- ✅ **Fiscal logado só visualiza e gerencia seus próprios cessionários**
+
+### Relatórios
+- ✅ Relatório geral de cessionários (PDF/Excel)
+- ✅ Cessionários regulares e irregulares
+- ✅ Arrecadação por período
+- ✅ Relatório de cobrança com recibos
+- ✅ Certidões de situação com código de verificação
+- ✅ Filtro por fiscal em todos os relatórios
+
+### Usuários e Autenticação
+- ✅ Login com JWT
+- ✅ Papéis: Administrador, Operador, Visualizador
+- ✅ Gestão completa de usuários (admin)
+- ✅ Aprovação de usuários pendentes
+- ✅ **Perfil do usuário** - edição de nome/email
+- ✅ **Alteração de senha** pelo próprio usuário
+
+### Dashboard
+- ✅ KPIs: total, regulares, irregulares, arrecadação
+- ✅ Gráfico de arrecadação mensal
+- ✅ Gráfico de situação (pizza)
+- ✅ Top cessionários
+- ✅ Atividades recentes
+- ✅ **Filtragem automática por fiscal logado**
+
+### Outros
 - ✅ Temas claro/escuro
 - ✅ Design responsivo
+- ✅ Verificação pública de certidões
 
 ## 🛠️ Setup
 
@@ -98,9 +135,42 @@ npm run dev
 
 ## 🔑 Primeiro Acesso
 
-1. Acesse o sistema em `http://localhost:8080`
-2. Crie um usuário inicial via API ou use o endpoint de seed
-3. Faça login com as credenciais criadas
+O sistema cria automaticamente um usuário admin na primeira execução:
+
+- **Email**: `admin@mercado.pb.gov.br`
+- **Senha**: `admin123`
+
+Após o primeiro login:
+1. Cadastre os fiscais em **Fiscais**
+2. Crie os usuários em **Usuários** e vincule-os aos fiscais
+3. Os fiscais poderão logar e gerenciar apenas seus cessionários
+
+> ⚠️ **Importante**: O vínculo entre usuário e fiscal é feito pelo campo "Fiscal vinculado" na tela de usuários.
+
+## 🗄️ Migração de Banco de Dados
+
+Ao adicionar novas colunas/tabelas (sem Alembic ativo), use os scripts de migração:
+
+```bash
+# Adicionar coluna fiscal_id na tabela users (após atualização)
+docker compose run --rm backend python scripts/migrate_add_fiscal_id_to_users.py
+```
+
+> 💡 O script detecta se a coluna já existe e não duplica.
+
+## 🆘 Recuperação de Acesso
+
+Se o admin perder o acesso (status alterado, senha perdida, etc.):
+
+```bash
+docker compose run --rm backend python scripts/recuperar_admin.py
+```
+
+Isso redefine o admin para:
+- Email: `admin@mercado.pb.gov.br`
+- Senha: `admin123`
+- Status: Ativo
+- Role: Administrador
 
 ## 📚 Documentação da API
 
@@ -124,9 +194,18 @@ npm run test
 
 O sistema utiliza SQLite por padrão (fácil de migrar para PostgreSQL):
 
-- **users** - Usuários do sistema
-- **cessionarios** - Cessionários e feirantes
-- **pagamentos** - Registro de pagamentos
+| Tabela | Descrição |
+|--------|-----------|
+| **users** | Usuários do sistema (login) |
+| **fiscais** | Fiscais do mercado |
+| **cessionarios** | Cessionários e feirantes |
+| **pagamentos** | Registro de pagamentos |
+| **certidoes** | Certidões emitidas |
+
+### Relacionamentos principais
+- `users.fiscal_id` → `fiscais.id` (vínculo usuário-fiscal)
+- `cessionarios.fiscal_id` → `fiscais.id` (cessionário do fiscal)
+- `pagamentos.cessionario_id` → `cessionarios.id`
 
 ## 🎨 Design System
 
@@ -138,30 +217,42 @@ O sistema utiliza SQLite por padrão (fácil de migrar para PostgreSQL):
 ## 🔒 Segurança
 
 - Autenticação JWT com expiração
-- Senhas hasheadas com bcrypt
+- Senhas hasheadas com pbkdf2_sha256
 - CORS configurado
 - SQL injection protegido via ORM
 - XSS protegido via React
+- **Fiscais só acessam seus próprios dados** (filtro automático em todas as APIs)
+- **Ownership check**: fiscal não pode editar/excluir cessionários de outros fiscais
 
 ## 🚀 Deploy
 
-### Produção com Docker
+### Produção com Docker (Hostinger/VPS)
 
 ```bash
-# Build otimizado
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# 1. Faça pull no servidor
+ssh root@seu-servidor
+cd ~/mercado-publico-solanea-app
+git pull
+
+# 2. Migração (se necessário)
+docker compose run --rm backend python scripts/migrate_add_fiscal_id_to_users.py
+
+# 3. Build e restart (NUNCA use down -v)
+docker compose build && docker compose up -d
 ```
+
+> ⚠️ **ATENÇÃO**: `docker compose down -v` apaga o volume do SQLite e **todos os dados**! Sempre use `up -d` para manter os dados.
 
 ### Variáveis de Ambiente
 
 ```env
 # Backend
 SECRET_KEY=your-secret-key
-DATABASE_URL=postgresql://user:pass@db/mercado
-CORS_ORIGINS=["https://yourdomain.com"]
+DATABASE_URL=sqlite:///./app.db
+CORS_ORIGINS=["https://seudominio.com"]
 
 # Frontend
-VITE_API_URL=https://api.yourdomain.com
+VITE_API_URL=https://api.seudominio.com
 ```
 
 ## 📄 Licença
