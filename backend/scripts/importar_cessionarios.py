@@ -119,7 +119,9 @@ def importar_cessionarios(arquivo_txt, db_path):
         nome = nome.strip()
         box = box.strip() if box and box != '-' else None
         atividade = atividade.strip() if atividade else None
-        situacao = situacao.strip() if situacao in ('Regular', 'Irregular') else 'Regular'
+        # SQLAlchemy SQLite Enum armazena os NOMES dos membros em maiúsculo
+        situacao_map = {'Regular': 'REGULAR', 'Irregular': 'IRREGULAR'}
+        situacao = situacao_map.get(situacao.strip(), 'REGULAR')
         valor = parse_valor(valor_str)
 
         if nome and len(nome) > 2 and nome not in ('Regular', 'Irregular', 'Resumo:'):
@@ -167,7 +169,7 @@ def importar_cessionarios(arquivo_txt, db_path):
             c['atividade'],
             c['situacao'],
             c['valor_referencia'],
-            'Mensal',
+            'MENSAL',
             None,
             None,
             agora,
