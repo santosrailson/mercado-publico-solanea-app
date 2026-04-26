@@ -382,21 +382,20 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     c.setFillColor(COR_PRIMARIA)
     c.drawCentredString(width / 2, code_y + 5, codigo)
 
-    # Texto introdutório / fundamentação legal
+    from reportlab.platypus import Paragraph
+    from reportlab.lib.styles import ParagraphStyle
+
+    # Texto de certificação (no lugar do antigo texto introdutório)
     text_y = code_y - 35
     c.setFillColor(COR_TEXTO)
     c.setFont("Times-Roman", 10)
 
-    texto_legal = (
-        "Fundamentado no art. 174 da Constituição Federal, na Lei Municipal nº 014/2021, "
-        "de 05 de Maio de 2021, que denomina o Mercado Público Municipal, e na Lei Municipal "
-        "nº 014/2018, de 19 de Setembro de 2018, que autoriza a cessão de uso de bem público, "
-        "a Administração do Mercado Público de Solânea - PB certifica, para os devidos fins, "
-        "a situação cadastral do(a) permissionário(a) abaixo qualificado(a):"
+    texto_cert = (
+        f"Certifica-se, portanto, que o(a) acima qualificado(a) encontra-se com situação "
+        f"<b>{cessionario.situacao.value.upper()}</b> no cadastro do Mercado Público Municipal, "
+        f"estando em gozo de todos os direitos e obrigações inerentes ao uso do espaço público "
+        f"concedido, nos termos da legislação vigente."
     )
-
-    from reportlab.platypus import Paragraph
-    from reportlab.lib.styles import ParagraphStyle
 
     intro_style = ParagraphStyle(
         'Intro',
@@ -406,7 +405,7 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
         alignment=4,  # Justified
         textColor=COR_TEXTO
     )
-    p_intro = Paragraph(texto_legal, intro_style)
+    p_intro = Paragraph(texto_cert, intro_style)
     p_intro.wrapOn(c, inner_w - 60, 120)
     p_intro.drawOn(c, x + 30, text_y - p_intro.height + 15)
 
@@ -441,28 +440,8 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
         c.drawString(x + 130, line_h, str(value))
         line_h -= 14
 
-    # Texto de certificação
-    cert_y = block_y - block_h - 25
-    cert_texto = (
-        f"Certifica-se, portanto, que o(a) acima qualificado(a) encontra-se com situação "
-        f"<b>{cessionario.situacao.value.upper()}</b> no cadastro do Mercado Público Municipal, "
-        f"estando em gozo de todos os direitos e obrigações inerentes ao uso do espaço público "
-        f"concedido, nos termos da legislação vigente."
-    )
-    cert_style = ParagraphStyle(
-        'CertText',
-        fontName='Times-Roman',
-        fontSize=10,
-        leading=15,
-        alignment=4,
-        textColor=COR_TEXTO
-    )
-    p_cert = Paragraph(cert_texto, cert_style)
-    p_cert.wrapOn(c, inner_w - 60, 100)
-    p_cert.drawOn(c, x + 30, cert_y - p_cert.height + 15)
-
     # Data e local
-    data_y = cert_y - p_cert.height - 25
+    data_y = block_y - block_h - 25
     c.setFont("Times-Roman", 10)
     c.drawCentredString(width / 2, data_y, f"Solânea - PB, {data_emissao} às {hora_emissao}")
 
