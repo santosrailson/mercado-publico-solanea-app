@@ -451,14 +451,14 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     selo_h = 50
     selo_x = width / 2 - selo_w / 2
 
-    # Fundo verde do selo
-    c.setFillColor(COR_PRIMARIA)
+    # Borda verde do selo (sem fundo)
+    c.setFillColor(colors.white)
     c.setStrokeColor(COR_PRIMARIA)
-    c.setLineWidth(1)
+    c.setLineWidth(1.5)
     c.roundRect(selo_x, ass_y - selo_h / 2, selo_w, selo_h, 5, fill=1, stroke=1)
 
-    # Texto branco no selo
-    c.setFillColor(colors.white)
+    # Texto verde no selo
+    c.setFillColor(COR_PRIMARIA)
     c.setFont("Helvetica-Bold", 12)
     c.drawCentredString(width / 2, ass_y + 6, "✓  AUTENTICADO")
     c.setFont("Helvetica", 8)
