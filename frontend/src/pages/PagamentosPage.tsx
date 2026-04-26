@@ -59,11 +59,17 @@ export function PagamentosPage() {
     const referencia = pagamento.referencia_mes || pagamento.periodicidade
     const data = formatDate(pagamento.data_pagamento)
 
+    // Emojis como códigos Unicode para garantir encoding correto na URL
+    const CHECK = '\u{2705}'
+    const MONEY = '\u{1F4B0}'
+    const CALENDAR = '\u{1F4C5}'
+    const NOTE = '\u{1F4DD}'
+
     const mensagem = `Olá ${nome}, tudo bem?\n\n` +
-      `✓ Confirmamos o recebimento do seu pagamento!\n\n` +
-      `*Valor:* ${valor}\n` +
-      `*Data:* ${data}\n` +
-      `*Referência:* ${referencia}\n\n` +
+      `${CHECK} Confirmamos o recebimento do seu pagamento!\n\n` +
+      `${MONEY} Valor: ${valor}\n` +
+      `${CALENDAR} Data: ${data}\n` +
+      `${NOTE} Referência: ${referencia}\n\n` +
       `Obrigado pela pontualidade! Qualquer dúvida, estamos à disposição.`
 
     const url = `https://wa.me/${numeroComDDD}?text=${encodeURIComponent(mensagem)}`
