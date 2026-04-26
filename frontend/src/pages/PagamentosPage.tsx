@@ -59,11 +59,11 @@ export function PagamentosPage() {
     const referencia = pagamento.referencia_mes || pagamento.periodicidade
     const data = formatDate(pagamento.data_pagamento)
 
-    // Emojis como códigos Unicode para garantir encoding correto na URL
-    const CHECK = '\u{2705}'
-    const MONEY = '\u{1F4B0}'
-    const CALENDAR = '\u{1F4C5}'
-    const NOTE = '\u{1F4DD}'
+    // Emojis criados em runtime com fromCodePoint para garantir encoding correto
+    const CHECK = String.fromCodePoint(0x2705)
+    const MONEY = String.fromCodePoint(0x1F4B0)
+    const CALENDAR = String.fromCodePoint(0x1F4C5)
+    const NOTE = String.fromCodePoint(0x1F4DD)
 
     const mensagem = `Olá ${nome}, tudo bem?\n\n` +
       `${CHECK} Confirmamos o recebimento do seu pagamento!\n\n` +
