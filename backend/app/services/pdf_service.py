@@ -38,7 +38,7 @@ def generate_cessionarios_pdf(cessionarios: List[Cessionario], titulo: str = "Re
     )
     
     elements.append(Paragraph(titulo, title_style))
-    elements.append(Paragraph(f"Emitido em: {datetime.now().strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
+    elements.append(Paragraph(f"Emitido em: {datetime.now(ZoneInfo('America/Recife')).strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
     elements.append(Spacer(1, 20))
     
     # Tabela
@@ -103,7 +103,7 @@ def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca
     recibo_w = (width - 2 * margem - gap_h) / 2
     recibo_h = (height - 2 * margem - 3 * gap_v) / 4
 
-    data_str = data_cobranca.strftime('%d/%m/%Y') if data_cobranca else datetime.now().strftime('%d/%m/%Y')
+    data_str = data_cobranca.strftime('%d/%m/%Y') if data_cobranca else datetime.now(ZoneInfo('America/Recife')).strftime('%d/%m/%Y')
 
     def draw_recibo(x, y, cessionario, via):
         """Desenha um único recibo na posição (x, y) canto inferior esquerdo."""
@@ -259,7 +259,7 @@ def generate_pagamentos_pdf(pagamentos: List[Pagamento], titulo: str = "Relatór
     )
     
     elements.append(Paragraph(titulo, title_style))
-    elements.append(Paragraph(f"Emitido em: {datetime.now().strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
+    elements.append(Paragraph(f"Emitido em: {datetime.now(ZoneInfo('America/Recife')).strftime('%d/%m/%Y %H:%M')}", styles['Normal']))
     elements.append(Spacer(1, 20))
     
     data = [['Cessionário', 'Data', 'Periodicidade', 'Referência', 'Valor']]
@@ -299,6 +299,7 @@ def generate_pagamentos_pdf(pagamentos: List[Pagamento], titulo: str = "Relatór
 
 import random
 import string
+from zoneinfo import ZoneInfo
 
 def _generate_certidao_code() -> str:
     """Gera código alfanumérico único de verificação do documento."""
@@ -323,8 +324,9 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     COR_BORDA = colors.HexColor('#bdc3c7')
 
     codigo = _generate_certidao_code()
-    data_emissao = datetime.now().strftime('%d/%m/%Y')
-    hora_emissao = datetime.now().strftime('%H:%M')
+    agora_recife = datetime.now(ZoneInfo('America/Recife'))
+    data_emissao = agora_recife.strftime('%d/%m/%Y')
+    hora_emissao = agora_recife.strftime('%H:%M')
 
     # Margens e área útil
     margem = 2.5 * cm
