@@ -60,10 +60,10 @@ export function PagamentosPage() {
     const data = formatDate(pagamento.data_pagamento)
 
     const mensagem = `Olá ${nome}, tudo bem?\n\n` +
-      `✅ Confirmamos o recebimento do seu pagamento!\n\n` +
-      `💰 Valor: ${valor}\n` +
-      `📅 Data: ${data}\n` +
-      `📝 Referência: ${referencia}\n\n` +
+      `✓ Confirmamos o recebimento do seu pagamento!\n\n` +
+      `*Valor:* ${valor}\n` +
+      `*Data:* ${data}\n` +
+      `*Referência:* ${referencia}\n\n` +
       `Obrigado pela pontualidade! Qualquer dúvida, estamos à disposição.`
 
     const url = `https://wa.me/${numeroComDDD}?text=${encodeURIComponent(mensagem)}`
