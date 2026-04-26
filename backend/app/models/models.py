@@ -99,3 +99,17 @@ class Pagamento(Base):
     # Relationships
     cessionario = relationship("Cessionario", back_populates="pagamentos")
     registrado_por = relationship("User", back_populates="pagamentos_registrados")
+
+
+class Certidao(Base):
+    __tablename__ = "certidoes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    cessionario_id = Column(Integer, ForeignKey("cessionarios.id"), nullable=False)
+    codigo = Column(String(50), nullable=False, unique=True, index=True)
+    data_emissao = Column(DateTime, nullable=False)
+    data_referencia = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    cessionario = relationship("Cessionario")

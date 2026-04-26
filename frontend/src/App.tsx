@@ -7,6 +7,7 @@ import { CessionariosPage } from '@/pages/CessionariosPage'
 import { PagamentosPage } from '@/pages/PagamentosPage'
 import { RelatoriosPage } from '@/pages/RelatoriosPage'
 import { FiscaisPage } from '@/pages/FiscaisPage'
+import { VerificarCertidaoPage } from '@/pages/VerificarCertidaoPage'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -67,6 +68,7 @@ function App() {
           </PrivateRoute>
         }
       />
+      <Route path="/verificar-certidao" element={<VerificarCertidaoPage />} />
     </Routes>
   )
 }

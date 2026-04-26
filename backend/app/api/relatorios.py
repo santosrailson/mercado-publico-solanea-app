@@ -2,13 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from app.db.database import get_db
 from app.core.security import get_current_user_id
 from app.models.models import Situacao
-from app.schemas.schemas import RelatorioFiltros
+from app.schemas.schemas import RelatorioFiltros, CertidaoVerificacaoResponse
 from app.crud import cessionario as crud_cess
 from app.crud import pagamento as crud_pag
+from app.crud import certidao as crud_cert
 from app.services.pdf_service import (
     generate_cessionarios_pdf, generate_pagamentos_pdf, generate_certidao_pdf, generate_recibos_cobranca_pdf
 )
@@ -116,16 +118,51 @@ def gerar_certidao(
     db: Session = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id)
 ):
-    """Gera certidão de situação em PDF"""
+    """Gera certidão de situação em PDF e registra no banco"""
     cessionario = crud_cess.get_cessionario(db, cessionario_id)
     if not cessionario:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")
     
-    pdf = generate_certidao_pdf(cessionario)
+    agora = datetime.now(ZoneInfo('America/Recife'))
+    pdf, codigo = generate_certidao_pdf(cessionario, data_emissao=agora)
+    
+    # Salva a certidão no banco para verificação futura
+    crud_cert.create_certidao(
+        db,
+        cessionario_id=cessionario_id,
+        codigo=codigo,
+        data_emissao=agora
+    )
+    
     filename = f"certidao_{cessionario.nome.replace(' ', '_').lower()}.pdf"
     
     return Response(
         content=pdf,
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
+@router.get("/verificar-certidao/{codigo}", response_model=CertidaoVerificacaoResponse)
+def verificar_certidao(
+    codigo: str,
+    db: Session = Depends(get_db)
+):
+    """Verifica a autenticidade de uma certidão pelo código (público, sem login)"""
+    certidao = crud_cert.get_certidao_by_codigo(db, codigo)
+    
+    if not certidao:
+        return CertidaoVerificacaoResponse(
+            valido=False,
+            mensagem="Código de verificação não encontrado. Documento pode ser fraudulento."
+        )
+    
+    return CertidaoVerificacaoResponse(
+        valido=True,
+        mensagem="Certidão verificada com sucesso. Documento autêntico.",
+        cessionario_nome=certidao.cessionario.nome if certidao.cessionario else None,
+        numero_box=certidao.cessionario.numero_box if certidao.cessionario else None,
+        situacao=certidao.cessionario.situacao.value if certidao.cessionario else None,
+        data_emissao=certidao.data_emissao,
+        codigo=certidao.codigo
     )

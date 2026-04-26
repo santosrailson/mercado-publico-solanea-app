@@ -310,8 +310,10 @@ def _generate_certidao_code() -> str:
     return f"SOL-{parts[0]}-{parts[1]}-{parts[2]}"
 
 
-def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
-    """Gera certidão de situação profissional com código de verificação."""
+def generate_certidao_pdf(cessionario: Cessionario, data_emissao: datetime = None) -> tuple[bytes, str]:
+    """Gera certidão de situação profissional com código de verificação.
+    Retorna (pdf_bytes, codigo_verificacao)
+    """
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
@@ -324,9 +326,10 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     COR_BORDA = colors.HexColor('#bdc3c7')
 
     codigo = _generate_certidao_code()
-    agora_recife = datetime.now(ZoneInfo('America/Recife'))
-    data_emissao = agora_recife.strftime('%d/%m/%Y')
-    hora_emissao = agora_recife.strftime('%H:%M')
+    if data_emissao is None:
+        data_emissao = datetime.now(ZoneInfo('America/Recife'))
+    data_emissao_str = data_emissao.strftime('%d/%m/%Y')
+    hora_emissao = data_emissao.strftime('%H:%M')
 
     # Margens e área útil
     margem = 2.5 * cm
@@ -445,7 +448,7 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     # Data e local
     data_y = block_y - block_h - 25
     c.setFont("Times-Roman", 10)
-    c.drawCentredString(width / 2, data_y, f"Solânea - PB, {data_emissao} às {hora_emissao}")
+    c.drawCentredString(width / 2, data_y, f"Solânea - PB, {data_emissao_str} às {hora_emissao}")
 
     # Selo de autenticação digital
     ass_y = data_y - 70
@@ -477,4 +480,4 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     c.showPage()
     c.save()
     buffer.seek(0)
-    return buffer.getvalue()
+    return buffer.getvalue(), codigo

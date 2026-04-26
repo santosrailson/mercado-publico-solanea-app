@@ -168,6 +168,30 @@ class PagamentoListFilters(BaseModel):
     limit: int = 20
 
 
+# ============== CERTIDÃO SCHEMAS ==============
+
+class CertidaoResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    cessionario_id: int
+    cessionario_nome: Optional[str] = None
+    codigo: str
+    data_emissao: datetime
+    data_referencia: Optional[datetime] = None
+    created_at: datetime
+
+
+class CertidaoVerificacaoResponse(BaseModel):
+    valido: bool
+    mensagem: str
+    cessionario_nome: Optional[str] = None
+    numero_box: Optional[str] = None
+    situacao: Optional[str] = None
+    data_emissao: Optional[datetime] = None
+    codigo: Optional[str] = None
+
+
 # ============== DASHBOARD SCHEMAS ==============
 
 class DashboardKPIs(BaseModel):
