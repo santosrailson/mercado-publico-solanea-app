@@ -188,7 +188,11 @@ def seed_data():
             print("ℹ️ Usuário admin já existe")
 
         # Importa cessionários automaticamente se o banco estiver vazio
-        importar_cessionarios_do_txt(db)
+        try:
+            importar_cessionarios_do_txt(db)
+        except Exception as e:
+            print(f"⚠️  Erro na importação automática de cessionários: {e}")
+            print("   Continuando startup normalmente...")
 
     finally:
         db.close()
