@@ -448,7 +448,7 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     # Selo de autenticação digital
     ass_y = data_y - 70
     selo_w = 160
-    selo_h = 50
+    selo_h = 60
     selo_x = width / 2 - selo_w / 2
 
     # Borda verde do selo (sem fundo)
@@ -457,13 +457,13 @@ def generate_certidao_pdf(cessionario: Cessionario) -> bytes:
     c.setLineWidth(1.5)
     c.roundRect(selo_x, ass_y - selo_h / 2, selo_w, selo_h, 5, fill=1, stroke=1)
 
-    # Texto verde no selo
+    # Texto verde no selo (distribuído simetricamente)
     c.setFillColor(COR_PRIMARIA)
     c.setFont("Helvetica-Bold", 12)
-    c.drawCentredString(width / 2, ass_y + 6, "✓  AUTENTICADO")
+    c.drawCentredString(width / 2, ass_y + 12, "✓  AUTENTICADO")
     c.setFont("Helvetica", 8)
-    c.drawCentredString(width / 2, ass_y - 10, "Documento verificado eletronicamente")
-    c.drawCentredString(width / 2, ass_y - 22, f"Código: {codigo}")
+    c.drawCentredString(width / 2, ass_y, "Documento verificado eletronicamente")
+    c.drawCentredString(width / 2, ass_y - 12, f"Código: {codigo}")
 
     # Rodapé com validação
     footer_y = margem + 25
