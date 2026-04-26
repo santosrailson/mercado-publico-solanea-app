@@ -6,11 +6,12 @@ from zoneinfo import ZoneInfo
 
 from app.db.database import get_db
 from app.core.security import get_current_user_id
-from app.models.models import Situacao
+from app.models.models import Situacao, UserRole, User
 from app.schemas.schemas import RelatorioFiltros, CertidaoVerificacaoResponse
 from app.crud import cessionario as crud_cess
 from app.crud import pagamento as crud_pag
 from app.crud import certidao as crud_cert
+from app.crud import user as crud_user
 from app.services.pdf_service import (
     generate_cessionarios_pdf, generate_pagamentos_pdf, generate_certidao_pdf, generate_recibos_cobranca_pdf
 )
@@ -21,6 +22,20 @@ from app.services.excel_service import (
 router = APIRouter(prefix="/relatorios", tags=["Relatórios"])
 
 
+def get_current_user(db: Session, user_id: int) -> User:
+    user = crud_user.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return user
+
+
+def get_fiscal_filter(user: User) -> Optional[int]:
+    """Retorna fiscal_id se o usuário for um fiscal (não admin)"""
+    if user.role != UserRole.ADMIN and user.fiscal_id is not None:
+        return user.fiscal_id
+    return None
+
+
 @router.post("/exportar")
 def exportar_relatorio(
     filtros: RelatorioFiltros,
@@ -29,10 +44,19 @@ def exportar_relatorio(
 ):
     """Exporta relatório em PDF ou Excel conforme filtros"""
     
+    user = get_current_user(db, current_user_id)
+    fiscal_filter = get_fiscal_filter(user)
+    
+    # Se for fiscal, sobrescreve o fiscal_id do filtro
+    if fiscal_filter is not None:
+        filtros.fiscal_id = fiscal_filter
+    
     formato = filtros.formato.lower()
     
     if filtros.tipo == "todos":
-        cessionarios, _ = crud_cess.get_cessionarios(db, skip=0, limit=10000)
+        cessionarios, _ = crud_cess.get_cessionarios(
+            db, skip=0, limit=10000, fiscal_id=filtros.fiscal_id
+        )
         if formato == "pdf":
             pdf = generate_cessionarios_pdf(cessionarios, "Relatório Geral de Cessionários")
             return Response(
@@ -49,7 +73,9 @@ def exportar_relatorio(
             )
     
     elif filtros.tipo == "regulares":
-        cessionarios = crud_cess.get_cessionarios_by_situacao(db, Situacao.REGULAR)
+        cessionarios, _ = crud_cess.get_cessionarios(
+            db, skip=0, limit=10000, situacao=Situacao.REGULAR, fiscal_id=filtros.fiscal_id
+        )
         if formato == "pdf":
             pdf = generate_cessionarios_pdf(cessionarios, "Relatório de Cessionários Regulares")
             return Response(content=pdf, media_type="application/pdf",
@@ -60,7 +86,9 @@ def exportar_relatorio(
                           headers={"Content-Disposition": "attachment; filename=regulares.xlsx"})
     
     elif filtros.tipo == "irregulares":
-        cessionarios = crud_cess.get_cessionarios_by_situacao(db, Situacao.IRREGULAR)
+        cessionarios, _ = crud_cess.get_cessionarios(
+            db, skip=0, limit=10000, situacao=Situacao.IRREGULAR, fiscal_id=filtros.fiscal_id
+        )
         if formato == "pdf":
             pdf = generate_cessionarios_pdf(cessionarios, "Relatório de Cessionários Irregulares")
             return Response(content=pdf, media_type="application/pdf",
@@ -71,11 +99,24 @@ def exportar_relatorio(
                           headers={"Content-Disposition": "attachment; filename=irregulares.xlsx"})
     
     elif filtros.tipo == "pagamentos":
-        pagamentos, _ = crud_pag.get_pagamentos(
-            db, skip=0, limit=10000,
-            data_inicio=filtros.data_inicio,
-            data_fim=filtros.data_fim
-        )
+        # Para pagamentos, precisamos filtrar por cessionários do fiscal
+        if fiscal_filter is not None:
+            cessionarios, _ = crud_cess.get_cessionarios(
+                db, skip=0, limit=10000, fiscal_id=fiscal_filter
+            )
+            cessionario_ids = [c.id for c in cessionarios]
+            pagamentos, _ = crud_pag.get_pagamentos(
+                db, skip=0, limit=10000,
+                data_inicio=filtros.data_inicio,
+                data_fim=filtros.data_fim,
+                cessionario_ids=cessionario_ids
+            )
+        else:
+            pagamentos, _ = crud_pag.get_pagamentos(
+                db, skip=0, limit=10000,
+                data_inicio=filtros.data_inicio,
+                data_fim=filtros.data_fim
+            )
         if formato == "pdf":
             pdf = generate_pagamentos_pdf(pagamentos, "Relatório de Arrecadação")
             return Response(content=pdf, media_type="application/pdf",
@@ -86,7 +127,9 @@ def exportar_relatorio(
                           headers={"Content-Disposition": "attachment; filename=arrecadacao.xlsx"})
     
     elif filtros.tipo == "cessionarios":
-        cessionarios, _ = crud_cess.get_cessionarios(db, skip=0, limit=10000)
+        cessionarios, _ = crud_cess.get_cessionarios(
+            db, skip=0, limit=10000, fiscal_id=filtros.fiscal_id
+        )
         if formato == "pdf":
             pdf = generate_cessionarios_pdf(cessionarios, "Lista de Cessionários")
             return Response(content=pdf, media_type="application/pdf",
@@ -119,9 +162,16 @@ def gerar_certidao(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Gera certidão de situação em PDF e registra no banco"""
+    user = get_current_user(db, current_user_id)
+    
     cessionario = crud_cess.get_cessionario(db, cessionario_id)
     if not cessionario:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")
+    
+    # Verifica se fiscal pode gerar certidão para este cessionário
+    if user.role != UserRole.ADMIN and user.fiscal_id is not None:
+        if cessionario.fiscal_id != user.fiscal_id:
+            raise HTTPException(status_code=403, detail="Você não tem permissão para gerar certidão deste cessionário")
     
     agora = datetime.now(ZoneInfo('America/Recife'))
     pdf, codigo = generate_certidao_pdf(cessionario, data_emissao=agora)

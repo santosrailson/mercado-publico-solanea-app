@@ -12,10 +12,12 @@ class UserBase(BaseModel):
     nome: str
     email: str
     role: UserRole = UserRole.OPERATOR
+    fiscal_id: Optional[int] = None
 
 
 class UserCreate(UserBase):
     password: str
+    status: UserStatus = UserStatus.ACTIVE
 
 
 class UserUpdate(BaseModel):
@@ -23,6 +25,7 @@ class UserUpdate(BaseModel):
     email: Optional[str] = None
     role: Optional[UserRole] = None
     status: Optional[UserStatus] = None
+    fiscal_id: Optional[int] = None
 
 
 class UserResponse(UserBase):
@@ -30,12 +33,18 @@ class UserResponse(UserBase):
     
     id: int
     status: UserStatus
+    fiscal_id: Optional[int] = None
     created_at: datetime
 
 
 class UserLogin(BaseModel):
     email: str
     password: str
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
 
 
 class Token(BaseModel):
@@ -72,6 +81,7 @@ class FiscalResponse(FiscalBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    usuario_vinculado: Optional[UserResponse] = None
 
 
 # ============== CESSIONÁRIO SCHEMAS ==============

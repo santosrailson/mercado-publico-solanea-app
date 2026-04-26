@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, or_
 from typing import List, Optional
 from datetime import datetime, timedelta
 
@@ -18,7 +18,8 @@ def get_pagamentos(
     search: Optional[str] = None,
     periodicidade: Optional[Periodicidade] = None,
     data_inicio: Optional[datetime] = None,
-    data_fim: Optional[datetime] = None
+    data_fim: Optional[datetime] = None,
+    cessionario_ids: Optional[List[int]] = None
 ) -> tuple[List[Pagamento], int]:
     query = db.query(Pagamento).join(Cessionario)
     
@@ -33,6 +34,9 @@ def get_pagamentos(
     
     if data_fim:
         query = query.filter(Pagamento.data_pagamento <= data_fim)
+    
+    if cessionario_ids:
+        query = query.filter(Pagamento.cessionario_id.in_(cessionario_ids))
     
     total = query.count()
     pagamentos = query.order_by(desc(Pagamento.data_pagamento)).offset(skip).limit(limit).all()

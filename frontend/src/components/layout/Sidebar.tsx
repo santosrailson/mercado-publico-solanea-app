@@ -8,6 +8,8 @@ import {
   Store,
   X,
   ShieldCheck,
+  Settings,
+  UserCog,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { cn } from '@/utils'
@@ -26,6 +28,7 @@ const baseNavItems = [
 
 const adminNavItems = [
   { path: '/fiscais', icon: ShieldCheck, label: 'Fiscais' },
+  { path: '/usuarios', icon: UserCog, label: 'Usuários' },
 ]
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -113,9 +116,22 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </div>
           
+          <NavLink
+            to="/perfil"
+            onClick={onClose}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text2)] hover:text-[var(--text)] transition-colors rounded-lg hover:bg-[var(--surface2)]",
+                isActive && "bg-primary-500/10 text-primary-600 border border-primary-500/30"
+              )
+            }
+          >
+            <Settings className="w-4 h-4" />
+            Perfil
+          </NavLink>
           <button
             onClick={logout}
-            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text2)] hover:text-red-500 transition-colors rounded-lg hover:bg-[var(--surface2)]"
+            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[var(--text2)] hover:text-red-500 transition-colors rounded-lg hover:bg-[var(--surface2)] mt-1"
           >
             <LogOut className="w-4 h-4" />
             Sair

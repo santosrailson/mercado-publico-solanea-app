@@ -89,10 +89,13 @@ def delete_cessionario(db: Session, cessionario_id: int) -> bool:
     return True
 
 
-def get_atividades_distintas(db: Session) -> List[str]:
-    result = db.query(Cessionario.atividade).distinct().filter(
+def get_atividades_distintas(db: Session, fiscal_id: Optional[int] = None) -> List[str]:
+    query = db.query(Cessionario.atividade).distinct().filter(
         Cessionario.atividade != None
-    ).all()
+    )
+    if fiscal_id is not None:
+        query = query.filter(Cessionario.fiscal_id == fiscal_id)
+    result = query.all()
     return [r[0] for r in result if r[0]]
 
 

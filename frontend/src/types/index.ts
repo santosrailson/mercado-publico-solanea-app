@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: 'admin' | 'operator' | 'viewer';
   status: 'pending' | 'active' | 'inactive';
+  fiscal_id: number | null;
   created_at: string;
 }
 

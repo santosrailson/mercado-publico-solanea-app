@@ -7,6 +7,8 @@ import { CessionariosPage } from '@/pages/CessionariosPage'
 import { PagamentosPage } from '@/pages/PagamentosPage'
 import { RelatoriosPage } from '@/pages/RelatoriosPage'
 import { FiscaisPage } from '@/pages/FiscaisPage'
+import { UsuariosPage } from '@/pages/UsuariosPage'
+import { ProfilePage } from '@/pages/ProfilePage'
 import { VerificarCertidaoPage } from '@/pages/VerificarCertidaoPage'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -64,6 +66,26 @@ function App() {
           <PrivateRoute>
             <Layout>
               <FiscaisPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/usuarios"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <UsuariosPage />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/perfil"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <ProfilePage />
             </Layout>
           </PrivateRoute>
         }

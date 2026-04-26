@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { relatoriosApi } from '@/services/relatorios'
 import { fiscaisApi } from '@/services/fiscais'
+import { useAuthStore } from '@/store/auth'
 import { RelatorioTipo, ExportFormato } from '@/types'
 
 const relatorioOptions: { value: RelatorioTipo; label: string; desc: string }[] = [
@@ -18,6 +19,10 @@ const relatorioOptions: { value: RelatorioTipo; label: string; desc: string }[] 
 ]
 
 export function RelatoriosPage() {
+  const currentUser = useAuthStore((state) => state.user)
+  const isAdmin = currentUser?.role === 'admin'
+  const userFiscalId = currentUser?.fiscal_id
+
   const [tipo, setTipo] = useState<RelatorioTipo>('todos')
   const [formato, setFormato] = useState<ExportFormato>('pdf')
   const [dataInicio, setDataInicio] = useState('')
@@ -29,6 +34,7 @@ export function RelatoriosPage() {
     queryKey: ['fiscais-ativos'],
     queryFn: fiscaisApi.getAtivos,
     staleTime: 5 * 60 * 1000,
+    enabled: isAdmin,
   })
 
   const exportMutation = useMutation({
@@ -56,7 +62,7 @@ export function RelatoriosPage() {
       data_inicio: dataInicio || undefined,
       data_fim: dataFim || undefined,
       data_cobranca: dataCobranca || undefined,
-      fiscal_id: fiscalId ? parseInt(fiscalId) : undefined,
+      fiscal_id: isAdmin ? (fiscalId ? parseInt(fiscalId) : undefined) : (userFiscalId ?? undefined),
     })
   }
 
@@ -167,25 +173,37 @@ export function RelatoriosPage() {
                   Se não informada, será usada a data atual nos recibos.
                 </p>
 
-                <label className="block text-sm font-medium text-[var(--text2)]">
-                  <ShieldCheck className="w-4 h-4 inline mr-1" />
-                  Fiscal (opcional)
-                </label>
-                <select
-                  value={fiscalId}
-                  onChange={(e) => setFiscalId(e.target.value)}
-                  className="input"
-                >
-                  <option value="">Todos os fiscais</option>
-                  {fiscais?.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.nome}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-[var(--text2)]">
-                  Selecione um fiscal para gerar cobrança apenas dos cessionários vinculados a ele.
-                </p>
+                {isAdmin && (
+                  <>
+                    <label className="block text-sm font-medium text-[var(--text2)]">
+                      <ShieldCheck className="w-4 h-4 inline mr-1" />
+                      Fiscal (opcional)
+                    </label>
+                    <select
+                      value={fiscalId}
+                      onChange={(e) => setFiscalId(e.target.value)}
+                      className="input"
+                    >
+                      <option value="">Todos os fiscais</option>
+                      {fiscais?.map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.nome}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-[var(--text2)]">
+                      Selecione um fiscal para gerar cobrança apenas dos cessionários vinculados a ele.
+                    </p>
+                  </>
+                )}
+
+                {!isAdmin && userFiscalId && (
+                  <div className="p-3 bg-primary-500/10 rounded-lg border border-primary-500/20">
+                    <p className="text-sm text-[var(--text2)]">
+                      <span className="font-medium">Filtro aplicado:</span> Apenas cessionários vinculados a você
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

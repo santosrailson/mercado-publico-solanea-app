@@ -4,12 +4,13 @@ from typing import List, Optional
 
 from app.db.database import get_db
 from app.core.security import get_current_user_id
-from app.models.models import UserRole
+from app.models.models import UserRole, User
 from app.schemas.schemas import (
     CessionarioCreate, CessionarioUpdate, CessionarioResponse,
     CessionarioListFilters
 )
 from app.crud import cessionario as crud
+from app.crud import user as crud_user
 
 router = APIRouter(prefix="/cessionarios", tags=["Cessionários"])
 
@@ -33,6 +34,22 @@ def cessionario_to_dict(c) -> dict:
     }
 
 
+def get_current_user(db: Session, user_id: int) -> User:
+    user = crud_user.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return user
+
+
+def check_cessionario_ownership(cessionario, user: User):
+    """Verifica se um fiscal pode acessar/modificar um cessionário"""
+    if user.role == UserRole.ADMIN:
+        return True
+    if user.fiscal_id is not None and cessionario.fiscal_id == user.fiscal_id:
+        return True
+    raise HTTPException(status_code=403, detail="Você não tem permissão para acessar este cessionário")
+
+
 @router.get("", response_model=dict)
 def list_cessionarios(
     skip: int = Query(0, ge=0),
@@ -46,6 +63,12 @@ def list_cessionarios(
 ):
     """Lista cessionários com paginação e filtros"""
     from app.models.models import Situacao
+    
+    user = get_current_user(db, current_user_id)
+    
+    # Se for fiscal (não admin), filtra apenas seus cessionários
+    if user.role != UserRole.ADMIN and user.fiscal_id is not None:
+        fiscal_id = user.fiscal_id
     
     sit_filter = None
     if situacao:
@@ -76,6 +99,11 @@ def get_atividades(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Retorna lista de atividades distintas para filtros"""
+    user = get_current_user(db, current_user_id)
+    
+    if user.role != UserRole.ADMIN and user.fiscal_id is not None:
+        return crud.get_atividades_distintas(db, fiscal_id=user.fiscal_id)
+    
     return crud.get_atividades_distintas(db)
 
 
@@ -86,9 +114,13 @@ def get_cessionario(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Retorna detalhes de um cessionário"""
+    user = get_current_user(db, current_user_id)
+    
     cessionario = crud.get_cessionario(db, cessionario_id)
     if not cessionario:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")
+    
+    check_cessionario_ownership(cessionario, user)
     return cessionario_to_dict(cessionario)
 
 
@@ -99,6 +131,12 @@ def create_cessionario(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Cria novo cessionário"""
+    user = get_current_user(db, current_user_id)
+    
+    # Se for fiscal (não admin), auto-preenche fiscal_id
+    if user.role != UserRole.ADMIN and user.fiscal_id is not None:
+        data.fiscal_id = user.fiscal_id
+    
     novo = crud.create_cessionario(db, data)
     # Recarrega com relacionamento fiscal
     return cessionario_to_dict(crud.get_cessionario(db, novo.id))
@@ -112,11 +150,21 @@ def update_cessionario(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Atualiza cessionário"""
-    cessionario = crud.update_cessionario(db, cessionario_id, data)
+    user = get_current_user(db, current_user_id)
+    
+    cessionario = crud.get_cessionario(db, cessionario_id)
     if not cessionario:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")
+    
+    check_cessionario_ownership(cessionario, user)
+    
+    # Fiscal não pode alterar o fiscal_id
+    if user.role != UserRole.ADMIN and user.fiscal_id is not None:
+        data.fiscal_id = user.fiscal_id
+    
+    updated = crud.update_cessionario(db, cessionario_id, data)
     # Recarrega com relacionamento fiscal
-    return cessionario_to_dict(crud.get_cessionario(db, cessionario.id))
+    return cessionario_to_dict(crud.get_cessionario(db, updated.id))
 
 
 @router.delete("/{cessionario_id}")
@@ -126,6 +174,14 @@ def delete_cessionario(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """Remove cessionário"""
+    user = get_current_user(db, current_user_id)
+    
+    cessionario = crud.get_cessionario(db, cessionario_id)
+    if not cessionario:
+        raise HTTPException(status_code=404, detail="Cessionário não encontrado")
+    
+    check_cessionario_ownership(cessionario, user)
+    
     success = crud.delete_cessionario(db, cessionario_id)
     if not success:
         raise HTTPException(status_code=404, detail="Cessionário não encontrado")

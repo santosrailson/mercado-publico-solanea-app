@@ -38,7 +38,8 @@ def create_user(db: Session, user: UserCreate) -> User:
         email=user.email,
         hashed_password=get_password_hash(user.password),
         role=user.role,
-        status=UserStatus.ACTIVE
+        status=user.status or UserStatus.ACTIVE,
+        fiscal_id=user.fiscal_id
     )
     db.add(db_user)
     db.commit()
@@ -83,3 +84,14 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
 
 def approve_user(db: Session, user_id: int) -> Optional[User]:
     return update_user(db, user_id, UserUpdate(status=UserStatus.ACTIVE))
+
+
+def change_password(db: Session, user_id: int, new_password: str) -> Optional[User]:
+    db_user = get_user(db, user_id)
+    if not db_user:
+        return None
+    db_user.hashed_password = get_password_hash(new_password)
+    db_user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_user)
+    return db_user

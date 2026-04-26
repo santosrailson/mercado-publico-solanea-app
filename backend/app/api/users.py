@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.db.database import get_db
-from app.core.security import get_current_user_id
-from app.models.models import UserRole
-from app.schemas.schemas import UserCreate, UserUpdate, UserResponse
+from app.core.security import get_current_user_id, verify_password
+from app.models.models import UserRole, User
+from app.schemas.schemas import UserCreate, UserUpdate, UserResponse, PasswordChange
 from app.crud import user as crud
 
 router = APIRouter(prefix="/users", tags=["Usuários"])
@@ -103,3 +103,43 @@ def delete_user(
     if not success:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return {"message": "Usuário removido com sucesso"}
+
+
+@router.post("/change-password", response_model=dict)
+def change_own_password(
+    data: PasswordChange,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """Permite ao usuário alterar sua própria senha"""
+    user = crud.get_user(db, current_user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    if not verify_password(data.current_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Senha atual incorreta")
+    
+    crud.change_password(db, current_user_id, data.new_password)
+    return {"message": "Senha alterada com sucesso"}
+
+
+@router.put("/me", response_model=UserResponse)
+def update_own_profile(
+    data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """Permite ao usuário atualizar seu próprio perfil (nome, email)"""
+    # Não permite alterar role, status ou fiscal_id pelo próprio usuário
+    update_dict = data.model_dump(exclude_unset=True)
+    update_dict.pop("role", None)
+    update_dict.pop("status", None)
+    update_dict.pop("fiscal_id", None)
+    
+    if not update_dict:
+        raise HTTPException(status_code=400, detail="Nenhum dado fornecido para atualização")
+    
+    user = crud.update_user(db, current_user_id, UserUpdate(**update_dict))
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return user

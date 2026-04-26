@@ -39,11 +39,13 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.OPERATOR)
     status = Column(Enum(UserStatus), default=UserStatus.PENDING)
+    fiscal_id = Column(Integer, ForeignKey("fiscais.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     pagamentos_registrados = relationship("Pagamento", back_populates="registrado_por")
+    fiscal = relationship("Fiscal")
 
 
 class Fiscal(Base):

@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { cessionariosApi } from '@/services/cessionarios'
 import { fiscaisApi } from '@/services/fiscais'
+import { useAuthStore } from '@/store/auth'
 import { Cessionario } from '@/types'
 
 interface CessionarioModalProps {
@@ -15,6 +16,9 @@ interface CessionarioModalProps {
 
 export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioModalProps) {
   const queryClient = useQueryClient()
+  const currentUser = useAuthStore((state) => state.user)
+  const isAdmin = currentUser?.role === 'admin'
+  const userFiscalId = currentUser?.fiscal_id
   const isEditing = !!cessionario
   
   const [formData, setFormData] = useState({
@@ -33,6 +37,7 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
     queryKey: ['fiscais-ativos'],
     queryFn: fiscaisApi.getAtivos,
     staleTime: 5 * 60 * 1000,
+    enabled: isAdmin,
   })
 
   // Preencher formulário quando estiver editando
@@ -60,10 +65,10 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
         valor_referencia: '',
         periodicidade_referencia: 'Mensal',
         observacoes: '',
-        fiscal_id: '',
+        fiscal_id: userFiscalId ? userFiscalId.toString() : '',
       })
     }
-  }, [cessionario, isOpen])
+  }, [cessionario, isOpen, userFiscalId])
 
   const createMutation = useMutation({
     mutationFn: cessionariosApi.create,
@@ -96,7 +101,7 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
     const data = {
       ...formData,
       valor_referencia: parseFloat(formData.valor_referencia) || 0,
-      fiscal_id: formData.fiscal_id ? parseInt(formData.fiscal_id) : null,
+      fiscal_id: userFiscalId ?? (formData.fiscal_id ? parseInt(formData.fiscal_id) : null),
     }
 
     if (isEditing && cessionario) {
@@ -208,23 +213,34 @@ export function CessionarioModal({ isOpen, onClose, cessionario }: CessionarioMo
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[var(--text2)] mb-1">
-            Fiscal responsável
-          </label>
-          <select
-            value={formData.fiscal_id}
-            onChange={(e) => setFormData({ ...formData, fiscal_id: e.target.value })}
-            className="input"
-          >
-            <option value="">Selecione um fiscal...</option>
-            {fiscais?.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.nome}
-              </option>
-            ))}
-          </select>
-        </div>
+        {isAdmin && (
+          <div>
+            <label className="block text-sm font-medium text-[var(--text2)] mb-1">
+              Fiscal responsável
+            </label>
+            <select
+              value={formData.fiscal_id}
+              onChange={(e) => setFormData({ ...formData, fiscal_id: e.target.value })}
+              className="input"
+            >
+              <option value="">Selecione um fiscal...</option>
+              {fiscais?.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {!isAdmin && userFiscalId && (
+          <div className="p-3 bg-primary-500/10 rounded-lg border border-primary-500/20">
+            <p className="text-sm text-[var(--text2)]">
+              <span className="font-medium">Fiscal responsável:</span>{' '}
+              {fiscais?.find(f => f.id === userFiscalId)?.nome || 'Você'}
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-[var(--text2)] mb-1">

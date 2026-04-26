@@ -9,11 +9,16 @@ import { CessionarioModal } from '@/components/modals/CessionarioModal'
 import { cessionariosApi } from '@/services/cessionarios'
 import { fiscaisApi } from '@/services/fiscais'
 import { relatoriosApi } from '@/services/relatorios'
+import { useAuthStore } from '@/store/auth'
 import { Cessionario } from '@/types'
 import { formatDate } from '@/utils'
 
 export function CessionariosPage() {
   const queryClient = useQueryClient()
+  const currentUser = useAuthStore((state) => state.user)
+  const isAdmin = currentUser?.role === 'admin'
+  const userFiscalId = currentUser?.fiscal_id
+  
   const [search, setSearch] = useState('')
   const [situacao, setSituacao] = useState('')
   const [fiscalId, setFiscalId] = useState('')
@@ -27,14 +32,15 @@ export function CessionariosPage() {
     queryKey: ['fiscais-ativos'],
     queryFn: fiscaisApi.getAtivos,
     staleTime: 5 * 60 * 1000,
+    enabled: isAdmin,
   })
 
   const { data, isLoading } = useQuery({
-    queryKey: ['cessionarios', search, situacao, fiscalId, page],
+    queryKey: ['cessionarios', search, situacao, fiscalId, page, isAdmin, userFiscalId],
     queryFn: () => cessionariosApi.list({
       search: search || undefined,
       situacao: situacao || undefined,
-      fiscal_id: fiscalId ? parseInt(fiscalId) : undefined,
+      fiscal_id: isAdmin ? (fiscalId ? parseInt(fiscalId) : undefined) : (userFiscalId ?? undefined),
       skip: (page - 1) * limit,
       limit,
     }),
@@ -107,18 +113,20 @@ export function CessionariosPage() {
               <option value="Regular">Regular</option>
               <option value="Irregular">Irregular</option>
             </select>
-            <select
-              value={fiscalId}
-              onChange={(e) => { setFiscalId(e.target.value); setPage(1) }}
-              className="input w-full sm:w-48"
-            >
-              <option value="">Todos fiscais</option>
-              {fiscais?.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.nome}
-                </option>
-              ))}
-            </select>
+            {isAdmin && (
+              <select
+                value={fiscalId}
+                onChange={(e) => { setFiscalId(e.target.value); setPage(1) }}
+                className="input w-full sm:w-48"
+              >
+                <option value="">Todos fiscais</option>
+                {fiscais?.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.nome}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -133,7 +141,9 @@ export function CessionariosPage() {
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)]">Box</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden sm:table-cell">Atividade</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)]">Situação</th>
-                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden lg:table-cell">Fiscal</th>
+                {isAdmin && (
+                  <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden lg:table-cell">Fiscal</th>
+                )}
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)] hidden md:table-cell">Cadastrado</th>
                 <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-[var(--text2)]">Ações</th>
               </tr>
@@ -141,13 +151,13 @@ export function CessionariosPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="p-6 md:p-8 text-center text-[var(--muted)]">
+                  <td colSpan={isAdmin ? 7 : 6} className="p-6 md:p-8 text-center text-[var(--muted)]">
                     Carregando...
                   </td>
                 </tr>
               ) : data?.items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-6 md:p-8 text-center text-[var(--muted)]">
+                  <td colSpan={isAdmin ? 7 : 6} className="p-6 md:p-8 text-center text-[var(--muted)]">
                     Nenhum cessionário encontrado
                   </td>
                 </tr>
@@ -166,7 +176,9 @@ export function CessionariosPage() {
                         {c.situacao}
                       </span>
                     </td>
-                    <td className="p-3 md:p-4 text-[var(--text2)] text-sm hidden lg:table-cell">{c.fiscal_nome || '-'}</td>
+                    {isAdmin && (
+                      <td className="p-3 md:p-4 text-[var(--text2)] text-sm hidden lg:table-cell">{c.fiscal_nome || '-'}</td>
+                    )}
                     <td className="p-3 md:p-4 text-[var(--text2)] text-sm hidden md:table-cell">{formatDate(c.created_at)}</td>
                     <td className="p-3 md:p-4">
                       <div className="flex items-center gap-1 md:gap-2">
