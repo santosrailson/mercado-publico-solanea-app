@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Users, UserCheck, UserX, DollarSign, ShieldCheck } from 'lucide-react'
 import { KPICard } from './KPICard'
 import { ChartsSection } from './ChartsSection'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+import { VerificarCertidaoModal } from '@/components/modals/VerificarCertidaoModal'
 import { dashboardApi } from '@/services/dashboard'
 import { formatCurrency } from '@/utils'
 
 export function Dashboard() {
+  const [isVerificarOpen, setIsVerificarOpen] = useState(false)
+
   const { data: kpis } = useQuery({
     queryKey: ['dashboard', 'kpis'],
     queryFn: dashboardApi.getKPIs,
@@ -102,19 +106,24 @@ export function Dashboard() {
               >
                 <span className="text-sm font-medium text-[var(--text)]">Cessionários</span>
               </a>
-              <a 
-                href="/verificar-certidao" 
+              <button
+                onClick={() => setIsVerificarOpen(true)}
                 className="p-3 rounded-lg bg-primary-500/10 hover:bg-primary-500/20 transition-colors text-center border border-primary-500/30 sm:col-span-2"
               >
                 <div className="flex items-center justify-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-primary-500" />
                   <span className="text-sm font-medium text-primary-500">Verificar Autenticidade de Certidão</span>
                 </div>
-              </a>
+              </button>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <VerificarCertidaoModal
+        isOpen={isVerificarOpen}
+        onClose={() => setIsVerificarOpen(false)}
+      />
     </div>
   )
 }
