@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Users, UserCheck, UserX, DollarSign } from 'lucide-react'
+import { Users, UserCheck, UserX, DollarSign, ShieldCheck } from 'lucide-react'
 import { KPICard } from './KPICard'
 import { ChartsSection } from './ChartsSection'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
@@ -101,6 +101,15 @@ export function Dashboard() {
                 className="p-3 rounded-lg bg-[var(--surface2)] hover:bg-[var(--surface3)] transition-colors text-center"
               >
                 <span className="text-sm font-medium text-[var(--text)]">Cessionários</span>
+              </a>
+              <a 
+                href="/verificar-certidao" 
+                className="p-3 rounded-lg bg-primary-500/10 hover:bg-primary-500/20 transition-colors text-center border border-primary-500/30 sm:col-span-2"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary-500" />
+                  <span className="text-sm font-medium text-primary-500">Verificar Autenticidade de Certidão</span>
+                </div>
               </a>
             </div>
           </CardContent>
