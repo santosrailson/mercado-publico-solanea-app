@@ -5,7 +5,6 @@ Execute dentro do container backend:
     python scripts/recuperar_admin.py
 """
 
-import sqlite3
 import os
 import sys
 

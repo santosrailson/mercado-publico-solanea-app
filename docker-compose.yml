@@ -1,4 +1,24 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: mercado-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: mercado
+      POSTGRES_USER: mercado
+      POSTGRES_PASSWORD: mercado123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mercado-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mercado -d mercado"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -8,11 +28,12 @@ services:
     ports:
       - "8007:8007"
     environment:
-      - DATABASE_URL=sqlite:///./data/mercado.db
+      - DATABASE_URL=postgresql://mercado:mercado123@db:5432/mercado
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
       - CORS_ORIGINS=["http://localhost:5173", "http://localhost:3000", "http://frontend"]
-    volumes:
-      - backend_data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - mercado-network
     healthcheck:
@@ -35,7 +56,7 @@ services:
       - mercado-network
 
 volumes:
-  backend_data:
+  postgres_data:
 
 networks:
   mercado-network:

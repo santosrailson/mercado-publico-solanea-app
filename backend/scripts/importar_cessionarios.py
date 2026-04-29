@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 """
-Script para importar cessionários de um arquivo texto extraído de PDF
-para o banco SQLite do sistema.
+Script para importar cessionários de um arquivo texto extraído de PDF.
 
 Uso:
-    python importar_cessionarios.py <arquivo_txt> <caminho_banco_sqlite>
+    python importar_cessionarios.py <arquivo_txt>
 
 Exemplo:
-    python importar_cessionarios.py cessionarios.txt ./data/mercado.db
+    python importar_cessionarios.py cessionarios.txt
 """
 
 import sys
-import sqlite3
+import os
 from datetime import datetime
+
+# Adiciona o path para importar os módulos do app
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from app.db.database import SessionLocal
+from app.models.models import Cessionario, SituacaoCessionario, Periodicidade
 
 
 def parse_valor(valor_str):
@@ -25,7 +30,7 @@ def parse_valor(valor_str):
         return 0.0
 
 
-def importar_cessionarios(arquivo_txt, db_path):
+def importar_cessionarios(arquivo_txt):
     with open(arquivo_txt, 'r', encoding='utf-8') as f:
         linhas = [l.strip() for l in f.readlines()]
 
@@ -119,9 +124,8 @@ def importar_cessionarios(arquivo_txt, db_path):
         nome = nome.strip()
         box = box.strip() if box and box != '-' else None
         atividade = atividade.strip() if atividade else None
-        # SQLAlchemy SQLite Enum armazena os NOMES dos membros em maiúsculo
-        situacao_map = {'Regular': 'REGULAR', 'Irregular': 'IRREGULAR'}
-        situacao = situacao_map.get(situacao.strip(), 'REGULAR')
+        situacao_map = {'Regular': SituacaoCessionario.REGULAR, 'Irregular': SituacaoCessionario.IRREGULAR}
+        situacao = situacao_map.get(situacao.strip(), SituacaoCessionario.REGULAR)
         valor = parse_valor(valor_str)
 
         if nome and len(nome) > 2 and nome not in ('Regular', 'Irregular', 'Resumo:'):
@@ -135,66 +139,54 @@ def importar_cessionarios(arquivo_txt, db_path):
 
     print(f"Total de cessionários encontrados no arquivo: {len(cessionarios)}")
 
-    # Conecta ao banco
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    db = SessionLocal()
+    try:
+        inseridos = 0
+        duplicados = 0
+        agora = datetime.utcnow()
 
-    cursor.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='cessionarios'"
-    )
-    if not cursor.fetchone():
-        print("ERRO: Tabela 'cessionarios' não encontrada no banco!")
-        conn.close()
-        sys.exit(1)
+        for c in cessionarios:
+            existe = db.query(Cessionario).filter(Cessionario.nome == c['nome']).first()
+            if existe:
+                print(f"  ⚠️  Já existe: {c['nome']} — pulando")
+                duplicados += 1
+                continue
 
-    inseridos = 0
-    duplicados = 0
-    agora = datetime.utcnow().isoformat()
+            novo = Cessionario(
+                nome=c['nome'],
+                numero_box=c['numero_box'],
+                atividade=c['atividade'],
+                situacao=c['situacao'],
+                valor_referencia=c['valor_referencia'],
+                periodicidade_referencia=Periodicidade.MENSAL,
+                observacoes=None,
+                fiscal_id=None,
+                created_at=agora,
+                updated_at=agora,
+            )
+            db.add(novo)
+            inseridos += 1
+            print(f"  ✅ Inserido: {c['nome']}")
 
-    for c in cessionarios:
-        cursor.execute("SELECT id FROM cessionarios WHERE nome = ?", (c['nome'],))
-        if cursor.fetchone():
-            print(f"  ⚠️  Já existe: {c['nome']} — pulando")
-            duplicados += 1
-            continue
+        db.commit()
 
-        cursor.execute("""
-            INSERT INTO cessionarios
-            (nome, numero_box, atividade, situacao, valor_referencia,
-             periodicidade_referencia, observacoes, fiscal_id, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            c['nome'],
-            c['numero_box'],
-            c['atividade'],
-            c['situacao'],
-            c['valor_referencia'],
-            'MENSAL',
-            None,
-            None,
-            agora,
-            agora
-        ))
-        inseridos += 1
-        print(f"  ✅ Inserido: {c['nome']}")
+        print(f"\n{'='*50}")
+        print(f"Resumo da importação:")
+        print(f"  Encontrados no arquivo: {len(cessionarios)}")
+        print(f"  Inseridos: {inseridos}")
+        print(f"  Duplicados (pulados): {duplicados}")
+        print(f"{'='*50}")
+        print(f"\nPróximos passos:")
+        print(f"  1. Acesse a tela de Cessionários para atualizar telefones")
+        print(f"  2. Cadastre os Fiscais e vincule aos cessionários")
 
-    conn.commit()
-    conn.close()
-
-    print(f"\n{'='*50}")
-    print(f"Resumo da importação:")
-    print(f"  Encontrados no arquivo: {len(cessionarios)}")
-    print(f"  Inseridos: {inseridos}")
-    print(f"  Duplicados (pulados): {duplicados}")
-    print(f"{'='*50}")
-    print(f"\nPróximos passos:")
-    print(f"  1. Acesse a tela de Cessionários para atualizar telefones")
-    print(f"  2. Cadastre os Fiscais e vincule aos cessionários")
+    finally:
+        db.close()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print("Uso: python importar_cessionarios.py <arquivo_txt> <caminho_banco_sqlite>")
+    if len(sys.argv) < 2:
+        print("Uso: python importar_cessionarios.py <arquivo_txt>")
         sys.exit(1)
 
-    importar_cessionarios(sys.argv[1], sys.argv[2])
+    importar_cessionarios(sys.argv[1])
