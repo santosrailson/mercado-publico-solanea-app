@@ -111,6 +111,7 @@ class Certidao(Base):
     codigo = Column(String(50), nullable=False, unique=True, index=True)
     data_emissao = Column(DateTime, nullable=False)
     data_referencia = Column(DateTime, nullable=True)
+    data_validade = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/auth'
+import { useInactivityLogout } from '@/hooks/useInactivityLogout'
 import { Layout } from '@/components/layout/Layout'
 import { Dashboard } from '@/components/dashboard/Dashboard'
 import { LoginPage } from '@/pages/LoginPage'
@@ -17,6 +18,8 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  useInactivityLogout()
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />

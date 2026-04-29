@@ -189,6 +189,7 @@ class CertidaoResponse(BaseModel):
     codigo: str
     data_emissao: datetime
     data_referencia: Optional[datetime] = None
+    data_validade: Optional[datetime] = None
     created_at: datetime
 
 
@@ -199,6 +200,7 @@ class CertidaoVerificacaoResponse(BaseModel):
     numero_box: Optional[str] = None
     situacao: Optional[str] = None
     data_emissao: Optional[datetime] = None
+    data_validade: Optional[datetime] = None
     codigo: Optional[str] = None
 
 

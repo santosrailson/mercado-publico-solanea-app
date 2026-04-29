@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from app.db.database import get_db
@@ -144,7 +144,13 @@ def exportar_relatorio(
             db, skip=0, limit=10000, fiscal_id=filtros.fiscal_id
         )
         if formato == "pdf":
-            pdf = generate_recibos_cobranca_pdf(cessionarios, filtros.data_cobranca)
+            import random, string
+            parts = [
+                ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+                for _ in range(2)
+            ]
+            codigo_controle = f"RCB-{parts[0]}-{parts[1]}"
+            pdf = generate_recibos_cobranca_pdf(cessionarios, filtros.data_cobranca, codigo_controle)
             return Response(content=pdf, media_type="application/pdf",
                           headers={"Content-Disposition": "attachment; filename=recibos_cobranca.pdf"})
         else:
@@ -174,6 +180,7 @@ def gerar_certidao(
             raise HTTPException(status_code=403, detail="Você não tem permissão para gerar certidão deste cessionário")
     
     agora = datetime.now(ZoneInfo('America/Recife'))
+    data_validade = agora + timedelta(days=90)
     pdf, codigo = generate_certidao_pdf(cessionario, data_emissao=agora)
     
     # Salva a certidão no banco para verificação futura
@@ -181,7 +188,8 @@ def gerar_certidao(
         db,
         cessionario_id=cessionario_id,
         codigo=codigo,
-        data_emissao=agora
+        data_emissao=agora,
+        data_validade=data_validade
     )
     
     filename = f"certidao_{cessionario.nome.replace(' ', '_').lower()}.pdf"
@@ -207,6 +215,19 @@ def verificar_certidao(
             mensagem="Código de verificação não encontrado. Documento pode ser fraudulento."
         )
     
+    agora = datetime.now(ZoneInfo('America/Recife'))
+    if certidao.data_validade and agora > certidao.data_validade:
+        return CertidaoVerificacaoResponse(
+            valido=False,
+            mensagem=f"Certidão expirada em {certidao.data_validade.strftime('%d/%m/%Y')}. Solicite uma nova certidão.",
+            cessionario_nome=certidao.cessionario.nome if certidao.cessionario else None,
+            numero_box=certidao.cessionario.numero_box if certidao.cessionario else None,
+            situacao=certidao.cessionario.situacao.value if certidao.cessionario else None,
+            data_emissao=certidao.data_emissao,
+            data_validade=certidao.data_validade,
+            codigo=certidao.codigo
+        )
+    
     return CertidaoVerificacaoResponse(
         valido=True,
         mensagem="Certidão verificada com sucesso. Documento autêntico.",
@@ -214,5 +235,6 @@ def verificar_certidao(
         numero_box=certidao.cessionario.numero_box if certidao.cessionario else None,
         situacao=certidao.cessionario.situacao.value if certidao.cessionario else None,
         data_emissao=certidao.data_emissao,
+        data_validade=certidao.data_validade,
         codigo=certidao.codigo
     )

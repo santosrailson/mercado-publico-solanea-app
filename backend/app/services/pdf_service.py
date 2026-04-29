@@ -9,6 +9,8 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 from datetime import datetime, date
 from typing import List, Optional
+import random
+import string
 
 from app.models.models import Cessionario, Pagamento, Situacao
 
@@ -84,7 +86,7 @@ def generate_cessionarios_pdf(cessionarios: List[Cessionario], titulo: str = "Re
     return buffer.getvalue()
 
 
-def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca: Optional[date] = None) -> bytes:
+def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca: Optional[date] = None, codigo_controle: Optional[str] = None) -> bytes:
     """Gera PDF de recibos de cobrança com duas vias, 8 recibos por folha (4 cessionários)."""
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
@@ -105,7 +107,15 @@ def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca
 
     data_str = data_cobranca.strftime('%d/%m/%Y') if data_cobranca else datetime.now(ZoneInfo('America/Recife')).strftime('%d/%m/%Y')
 
-    def draw_recibo(x, y, cessionario, via):
+    # Gera código de controle do relatório se não fornecido
+    if codigo_controle is None:
+        parts = [
+            ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+            for _ in range(2)
+        ]
+        codigo_controle = f"RCB-{parts[0]}-{parts[1]}"
+
+    def draw_recibo(x, y, cessionario, via, numero_recibo: str):
         """Desenha um único recibo na posição (x, y) canto inferior esquerdo."""
         # Fundo branco com borda suave
         c.setFillColor(colors.white)
@@ -192,6 +202,16 @@ def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca
         c.line(right_col + 8*mm, line_y, right_col + 40*mm, line_y)
         c.drawCentredString(right_col + 24*mm, line_y - 3*mm, "Carimbo / Data")
 
+        # Número do recibo (acima do código de controle)
+        c.setFont("Helvetica-Bold", 7.5)
+        c.setFillColor(colors.HexColor('#cc0000'))
+        c.drawCentredString(x + recibo_w / 2, y + 9.5*mm, f"N.º {numero_recibo}")
+
+        # Código de controle do relatório (acima do rodapé)
+        c.setFont("Helvetica-Bold", 6.5)
+        c.setFillColor(colors.HexColor('#cc0000'))
+        c.drawCentredString(x + recibo_w / 2, y + 6*mm, f"CÓDIGO DE CONTROLE: {codigo_controle}")
+
         # Rodapé com identificação
         c.setFont("Helvetica", 5.5)
         c.setFillColor(colors.HexColor('#999999'))
@@ -216,6 +236,11 @@ def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca
         c.setDash()
         c.setStrokeColor(colors.black)
 
+    # Gera um número único para cada cessionário do relatório
+    numeros_recibo = {}
+    for idx, cess in enumerate(cessionarios):
+        numeros_recibo[cess.id] = str(random.randint(100000, 999999))
+
     # Processa cessionários em grupos de 4 (4 cessionários por folha = 8 recibos)
     for i in range(0, len(cessionarios), 4):
         grupo = cessionarios[i:i+4]
@@ -226,14 +251,15 @@ def generate_recibos_cobranca_pdf(cessionarios: List[Cessionario], data_cobranca
         for row, cess in enumerate(grupo):
             # Posição Y (de cima para baixo)
             y = height - margem - (row + 1) * recibo_h - row * gap_v
+            numero = numeros_recibo[cess.id]
 
             # 1ª via (coluna esquerda)
             x1 = margem
-            draw_recibo(x1, y, cess, "1ª VIA")
+            draw_recibo(x1, y, cess, "1ª VIA", numero)
 
             # 2ª via (coluna direita)
             x2 = margem + recibo_w + gap_h
-            draw_recibo(x2, y, cess, "2ª VIA")
+            draw_recibo(x2, y, cess, "2ª VIA", numero)
 
         c.showPage()
 
@@ -297,8 +323,6 @@ def generate_pagamentos_pdf(pagamentos: List[Pagamento], titulo: str = "Relatór
     return buffer.getvalue()
 
 
-import random
-import string
 from zoneinfo import ZoneInfo
 
 def _generate_certidao_code() -> str:
@@ -446,12 +470,31 @@ def generate_certidao_pdf(cessionario: Cessionario, data_emissao: datetime = Non
         line_h -= 14
 
     # Data e local
-    data_y = block_y - block_h - 25
+    data_y = block_y - block_h - 20
     c.setFont("Times-Roman", 10)
     c.drawCentredString(width / 2, data_y, f"Solânea - PB, {data_emissao_str} às {hora_emissao}")
 
+    # Texto de ressalva acima do selo de autenticação
+    ressalva_y = data_y - 30
+    ressalva_style = ParagraphStyle(
+        'Ressalva',
+        fontName='Times-Roman',
+        fontSize=9,
+        leading=13,
+        alignment=1,  # Center
+        textColor=COR_TEXTO
+    )
+    texto_ressalva = (
+        "Ficam, todavia, ressalvados os direitos da Fazenda Municipal de cobrar quaisquer débitos "
+        "que venham a ser posteriormente apurados. Do que constar, passamos a presente certidão, para "
+        "fins de <b>PROVAS JUNTO A TODOS E QUAISQUER ÓRGÃOS</b>."
+    )
+    p_ressalva = Paragraph(texto_ressalva, ressalva_style)
+    p_ressalva.wrapOn(c, inner_w - 60, 80)
+    p_ressalva.drawOn(c, x + 30, ressalva_y - p_ressalva.height + 15)
+
     # Selo de autenticação digital
-    ass_y = data_y - 70
+    ass_y = ressalva_y - p_ressalva.height - 30
     selo_w = 160
     selo_h = 52
     selo_x = width / 2 - selo_w / 2
@@ -470,12 +513,17 @@ def generate_certidao_pdf(cessionario: Cessionario, data_emissao: datetime = Non
     c.drawCentredString(width / 2, ass_y, "Documento verificado eletronicamente")
     c.drawCentredString(width / 2, ass_y - 10, f"Código: {codigo}")
 
-    # Rodapé com validação
-    footer_y = margem + 25
+    # Rodapé com validação e aviso de rasura
+    footer_y = margem + 55
+    c.setFont("Helvetica-Bold", 8)
+    c.setFillColor(colors.HexColor('#cc0000'))
+    c.drawCentredString(width / 2, footer_y, "VÁLIDA POR 90 (NOVENTA) DIAS A PARTIR DA DATA DE EMISSÃO.")
+    c.drawCentredString(width / 2, footer_y - 12, "NOTA IMPORTANTE: QUALQUER RASURA TORNARÁ O PRESENTE DOCUMENTO NULO.")
+
     c.setFont("Helvetica", 7)
     c.setFillColor(colors.HexColor('#888888'))
-    c.drawCentredString(width / 2, footer_y, f"Este documento é válido mediante verificação do código {codigo} junto à Administração do Mercado Público.")
-    c.drawCentredString(width / 2, footer_y - 10, "Qualquer alteração invalida o presente documento.")
+    c.drawCentredString(width / 2, footer_y - 26, f"Este documento é válido mediante verificação do código {codigo} junto à Administração do Mercado Público.")
+    c.drawCentredString(width / 2, footer_y - 36, "Qualquer alteração invalida o presente documento.")
 
     c.showPage()
     c.save()

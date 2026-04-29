@@ -10,6 +10,7 @@ interface VerificacaoResult {
   numero_box?: string
   situacao?: string
   data_emissao?: string
+  data_validade?: string
   codigo?: string
 }
 
@@ -135,6 +136,14 @@ export function VerificarCertidaoModal({ isOpen, onClose }: VerificarCertidaoMod
                       <span className="text-[var(--text)] font-medium">
                         {resultado.data_emissao
                           ? new Date(resultado.data_emissao).toLocaleString('pt-BR')
+                          : '-'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-[var(--text2)]">Válida até:</span>
+                      <span className="text-[var(--text)] font-medium">
+                        {resultado.data_validade
+                          ? new Date(resultado.data_validade).toLocaleDateString('pt-BR')
                           : '-'}
                       </span>
                     </div>
