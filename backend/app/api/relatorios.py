@@ -215,7 +215,7 @@ def verificar_certidao(
             mensagem="Código de verificação não encontrado. Documento pode ser fraudulento."
         )
     
-    agora = datetime.now(ZoneInfo('America/Recife'))
+    agora = datetime.now(ZoneInfo('America/Recife')).replace(tzinfo=None)
     if certidao.data_validade and agora > certidao.data_validade:
         return CertidaoVerificacaoResponse(
             valido=False,
