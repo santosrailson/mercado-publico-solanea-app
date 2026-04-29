@@ -22,8 +22,9 @@ export function LoginPage() {
       toast.success('Bem-vindo!')
       navigate('/')
     },
-    onError: () => {
-      toast.error('Email ou senha incorretos')
+    onError: (error: any) => {
+      const msg = error.response?.data?.detail || 'Email ou senha incorretos'
+      toast.error(msg)
     },
   })
 

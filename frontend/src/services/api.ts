@@ -24,7 +24,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Não faz redirect na tela de login para evitar recarregar o formulário
+    const isLoginRequest = error.config?.url?.includes('/auth/login')
+    if (error.response?.status === 401 && !isLoginRequest) {
       useAuthStore.getState().logout()
       window.location.href = '/login'
     }
