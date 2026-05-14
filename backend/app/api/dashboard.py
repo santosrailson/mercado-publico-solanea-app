@@ -20,7 +20,8 @@ def get_current_user(db: Session, user_id: int) -> User:
     return user
 
 
-def get_fiscal_filter(user: User) -> int | None:
+from typing import Optional
+def get_fiscal_filter(user: User) -> Optional[int]:
     """Retorna fiscal_id se o usuário for um fiscal (não admin)"""
     if user.role != UserRole.ADMIN and user.fiscal_id is not None:
         return user.fiscal_id

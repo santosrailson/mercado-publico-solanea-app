@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
-    # Database
-    DATABASE_URL: str = "sqlite:///./mercado.db"
+    # Database - Default for local dev, overridden by docker-compose
+    DATABASE_URL: str = "postgresql://mercado:mercado123@localhost:5432/mercado"
     
     # CORS
     CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]

@@ -116,3 +116,18 @@ class Certidao(Base):
     
     # Relationships
     cessionario = relationship("Cessionario")
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    acao = Column(String(100), nullable=False)
+    entidade = Column(String(100), nullable=False)
+    entidade_id = Column(Integer, nullable=True)
+    detalhes = Column(Text, nullable=True)
+    ip_address = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User")
